@@ -1,5 +1,8 @@
 ---
-title: "speed-and-distance"
+title: "index.Rmd"
+author: "Me"
+date: "7/19/2018"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
