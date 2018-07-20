@@ -203,7 +203,305 @@ $(document).ready(function () {
 </div>
 
 
+<div id="stra-b-gene-analysis" class="section level1">
+<h1>StrA-B Gene Analysis</h1>
+<p>This is a test to see if I can embed R code</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
+## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
+## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
+## ✔ readr   1.1.1     ✔ forcats 0.3.0</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 3.5.1</code></pre>
+<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ape)
+library(ggplot2)
+library(grid)
+library(plyr)</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## You have loaded plyr after dplyr - this is likely to cause problems.
+## If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+## library(plyr); library(dplyr)</code></pre>
+<pre><code>## -------------------------------------------------------------------------</code></pre>
+<pre><code>## 
+## Attaching package: &#39;plyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     compact</code></pre>
+<pre class="r"><code>library(reshape)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;reshape&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:plyr&#39;:
+## 
+##     rename, round_any</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     rename</code></pre>
+<pre><code>## The following objects are masked from &#39;package:tidyr&#39;:
+## 
+##     expand, smiths</code></pre>
+<pre class="r"><code>library(reshape2)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;reshape2&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:reshape&#39;:
+## 
+##     colsplit, melt, recast</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     smiths</code></pre>
+<pre class="r"><code>library(ggthemes)
+library(gridExtra)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;gridExtra&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     combine</code></pre>
+<pre class="r"><code>library(corrplot)</code></pre>
+<pre><code>## corrplot 0.84 loaded</code></pre>
+<pre class="r"><code>library(dplyr)
+library(vegan)</code></pre>
+<pre><code>## Loading required package: permute</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## This is vegan 2.5-2</code></pre>
+<pre class="r"><code>library(SpadeR)
 
+library(RColorBrewer)
+library(phyloseq)
+
+library(DESeq2)</code></pre>
+<pre><code>## Loading required package: S4Vectors</code></pre>
+<pre><code>## Loading required package: stats4</code></pre>
+<pre><code>## Loading required package: BiocGenerics</code></pre>
+<pre><code>## Loading required package: parallel</code></pre>
+<pre><code>## 
+## Attaching package: &#39;BiocGenerics&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:parallel&#39;:
+## 
+##     clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+##     clusterExport, clusterMap, parApply, parCapply, parLapply,
+##     parLapplyLB, parRapply, parSapply, parSapplyLB</code></pre>
+<pre><code>## The following object is masked from &#39;package:gridExtra&#39;:
+## 
+##     combine</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     combine, intersect, setdiff, union</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     IQR, mad, sd, var, xtabs</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     anyDuplicated, append, as.data.frame, basename, cbind,
+##     colMeans, colnames, colSums, dirname, do.call, duplicated,
+##     eval, evalq, Filter, Find, get, grep, grepl, intersect,
+##     is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
+##     paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
+##     Reduce, rowMeans, rownames, rowSums, sapply, setdiff, sort,
+##     table, tapply, union, unique, unsplit, which, which.max,
+##     which.min</code></pre>
+<pre><code>## 
+## Attaching package: &#39;S4Vectors&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:reshape&#39;:
+## 
+##     expand, rename</code></pre>
+<pre><code>## The following object is masked from &#39;package:plyr&#39;:
+## 
+##     rename</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     first, rename</code></pre>
+<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
+## 
+##     expand</code></pre>
+<pre><code>## The following object is masked from &#39;package:base&#39;:
+## 
+##     expand.grid</code></pre>
+<pre><code>## Loading required package: IRanges</code></pre>
+<pre><code>## 
+## Attaching package: &#39;IRanges&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:phyloseq&#39;:
+## 
+##     distance</code></pre>
+<pre><code>## The following object is masked from &#39;package:plyr&#39;:
+## 
+##     desc</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     collapse, desc, slice</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     reduce</code></pre>
+<pre><code>## Loading required package: GenomicRanges</code></pre>
+<pre><code>## Loading required package: GenomeInfoDb</code></pre>
+<pre><code>## Loading required package: SummarizedExperiment</code></pre>
+<pre><code>## Loading required package: Biobase</code></pre>
+<pre><code>## Welcome to Bioconductor
+## 
+##     Vignettes contain introductory material; view with
+##     &#39;browseVignettes()&#39;. To cite Bioconductor, see
+##     &#39;citation(&quot;Biobase&quot;)&#39;, and for packages &#39;citation(&quot;pkgname&quot;)&#39;.</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Biobase&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:phyloseq&#39;:
+## 
+##     sampleNames</code></pre>
+<pre><code>## Loading required package: DelayedArray</code></pre>
+<pre><code>## Loading required package: matrixStats</code></pre>
+<pre><code>## 
+## Attaching package: &#39;matrixStats&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:Biobase&#39;:
+## 
+##     anyMissing, rowMedians</code></pre>
+<pre><code>## The following object is masked from &#39;package:plyr&#39;:
+## 
+##     count</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     count</code></pre>
+<pre><code>## Loading required package: BiocParallel</code></pre>
+<pre><code>## 
+## Attaching package: &#39;DelayedArray&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:matrixStats&#39;:
+## 
+##     colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     simplify</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     aperm, apply</code></pre>
+<pre class="r"><code>darte_ed_16s &lt;- import_mothur(mothur_shared_file = &quot;~/Desktop/stability.opti_mcc.shared&quot;, mothur_constaxonomy_file = &quot;~/Desktop/stability.cons.taxonomy&quot;)
+
+
+metadata &lt;- read.csv(&quot;~/Desktop/16slabels.csv&quot;, row.names=1)
+sample &lt;- sample_data(metadata)
+sample_data(darte_ed_16s)&lt;- sample
+
+# set rarefying depth
+after_remove_low_depth &lt;- prune_samples(sample_sums(darte_ed_16s) &gt;= 400, darte_ed_16s)
+sample_sums(after_remove_low_depth)</code></pre>
+<pre><code>## AH105OBT1S2R3 AH106OBT1S2R1      AH109MT2      AH110MT2      AH111MT2 
+##           515           619         22510         24628         23400 
+##      AH112MT2      AH113MT2      AH114MT2      AH115MT2      AH116MT2 
+##         19082          2126          4401         34824         34179 
+##      AH117MT2      AH118MT2 AH262LPT3S2R3 AH268OPT3S1R3 AH269OPT3S1R1 
+##         33516         95186         36083          8379         23777 
+## AH270OPT3S1R2 AH276OPT3S1R2 AH277OPT3S1R3 AH278OPT3S1R1 AH282OPT3S1R2 
+##         48804          7164         12031         61246           923 
+## AH284OPT3S1R1 AH285OPT3S1R2 AH286OPT3S1R3 AH292OPT3S1R3 AH293OPT3S1R1 
+##          2081         40272          1030          3260         26172 
+## AH294OPT3S1R2 AH295OPT3S1R3 AH297OPT3S1R2 AH300OPT3S2R2 AH301OPT3S2R3 
+##        169120          1883         15028          8627          2299 
+## AH302OPT3S2R1 AH305OPT3S2R1 AH308OPT3S2R1 AH309OPT3S2R2 AH310OPT3S2R3 
+##         12490          3910         16207         11080         18069 
+## AH311OPT3S2R1 AH313OPT3S2R3 AH317OPT3S2R1 AH318OPT3S2R2 AH321OPT3S2R2 
+##          5770          5230         72037         92541         17774 
+## AH322OPT3S2R3 AH324OPT3S2R2 AH325OPT3S2R3 AH326OPT3S2R1 AH327OPT3S2R2 
+##           589          7760         12697        127552         11830 
+## AH329OPT3S2R1 AH330OPT3S2R2 AH331OPT3S2R3 AH332OPT3S2R1 AH334OPT3S2R3 
+##          7761         46289         10187         25934          6363 
+## AH38POBT1S1R2 AH45POBT1S1R3 AH48POBT1S1R3 AH54POBT1S1R3  AH61OBT1S1R1 
+##           413          1853           718           408           936 
+##  AH62OBT1S1R2  AH66OBT1S1R3  AH67OBT1S1R1  AH68OBT1S1R2  AH69OBT1S1R3 
+##           622          1893           683          2247          1197 
+##  AH70OBT1S1R1  AH71OBT1S1R2  AH72OBT1S1R3  AH81OBT1S2R3  AH83OBT1S2R2 
+##          1042          2785           587           435           971 
+##  AH84OBT1S2R3  AH89OBT1S2R2  AH92OBT1S2R2  AH93OBT1S2R3  AH95OBT1S2R2 
+##          1281           543          2683          1963           726</code></pre>
+<pre class="r"><code>set.seed(1)
+rare &lt;- rarefy_even_depth(after_remove_low_depth, sample.size = 400,rngseed=TRUE)</code></pre>
+<pre><code>## `set.seed(TRUE)` was used to initialize repeatable random subsampling.</code></pre>
+<pre><code>## Please record this for your records so others can reproduce.</code></pre>
+<pre><code>## Try `set.seed(TRUE); .Random.seed` for the full vector</code></pre>
+<pre><code>## ...</code></pre>
+<pre><code>## 15128OTUs were removed because they are no longer 
+## present in any sample after random subsampling</code></pre>
+<pre><code>## ...</code></pre>
+<pre class="r"><code>sample_sums(rare)</code></pre>
+<pre><code>## AH105OBT1S2R3 AH106OBT1S2R1      AH109MT2      AH110MT2      AH111MT2 
+##           400           400           400           400           400 
+##      AH112MT2      AH113MT2      AH114MT2      AH115MT2      AH116MT2 
+##           400           400           400           400           400 
+##      AH117MT2      AH118MT2 AH262LPT3S2R3 AH268OPT3S1R3 AH269OPT3S1R1 
+##           400           400           400           400           400 
+## AH270OPT3S1R2 AH276OPT3S1R2 AH277OPT3S1R3 AH278OPT3S1R1 AH282OPT3S1R2 
+##           400           400           400           400           400 
+## AH284OPT3S1R1 AH285OPT3S1R2 AH286OPT3S1R3 AH292OPT3S1R3 AH293OPT3S1R1 
+##           400           400           400           400           400 
+## AH294OPT3S1R2 AH295OPT3S1R3 AH297OPT3S1R2 AH300OPT3S2R2 AH301OPT3S2R3 
+##           400           400           400           400           400 
+## AH302OPT3S2R1 AH305OPT3S2R1 AH308OPT3S2R1 AH309OPT3S2R2 AH310OPT3S2R3 
+##           400           400           400           400           400 
+## AH311OPT3S2R1 AH313OPT3S2R3 AH317OPT3S2R1 AH318OPT3S2R2 AH321OPT3S2R2 
+##           400           400           400           400           400 
+## AH322OPT3S2R3 AH324OPT3S2R2 AH325OPT3S2R3 AH326OPT3S2R1 AH327OPT3S2R2 
+##           400           400           400           400           400 
+## AH329OPT3S2R1 AH330OPT3S2R2 AH331OPT3S2R3 AH332OPT3S2R1 AH334OPT3S2R3 
+##           400           400           400           400           400 
+## AH38POBT1S1R2 AH45POBT1S1R3 AH48POBT1S1R3 AH54POBT1S1R3  AH61OBT1S1R1 
+##           400           400           400           400           400 
+##  AH62OBT1S1R2  AH66OBT1S1R3  AH67OBT1S1R1  AH68OBT1S1R2  AH69OBT1S1R3 
+##           400           400           400           400           400 
+##  AH70OBT1S1R1  AH71OBT1S1R2  AH72OBT1S1R3  AH81OBT1S2R3  AH83OBT1S2R2 
+##           400           400           400           400           400 
+##  AH84OBT1S2R3  AH89OBT1S2R2  AH92OBT1S2R2  AH93OBT1S2R3  AH95OBT1S2R2 
+##           400           400           400           400           400</code></pre>
+<pre class="r"><code>#remove NTC
+to_remove &lt;- c(&quot;NTC&quot;)
+pruned &lt;- prune_samples(!(rownames(sample_data(rare)) %in% to_remove), rare)
+
+group_bar_chart &lt;- function(physeq){
+  fin_table  = data.frame()
+  for (group in unique(sample_data(physeq)$DT) ){
+    temp_physeq = prune_samples( (sample_data(physeq)$DT == group), physeq)
+    
+    new_table &lt;- data.frame(taxa_sums(temp_physeq), tax_table(temp_physeq)[,2])
+    colnames(new_table) = c(&quot;abundance&quot;, &quot;phylum&quot;)
+    sum_table = data.frame()
+    for (x in unique(new_table$phylum) ){
+      temp = subset(new_table, phylum==x)
+      su = sum(temp$abundance)
+      sum_table = rbind(sum_table, data.frame(su, temp[1,2]))
+    }
+    
+    colnames(sum_table) = c(&quot;abundance&quot;, &quot;phylum&quot;)
+    perc_table = sum_table
+    for (i in 1:nrow(sum_table)){
+      perc_table[i,1] = sum_table[i,1] / sum(sum_table[,1])
+    }
+    
+    other_table = data.frame()
+    other = c()
+    for (i in 1:nrow(perc_table)){
+      if(perc_table[i,1] &gt; 0.01) {
+        other_table = rbind(other_table, perc_table[i,])
+      }else{
+        other = c(other, perc_table[i,1])
+      }
+    }
+    
+    sum(other)
+    tep = data.frame(sum(other), &quot;other&quot;)
+    colnames(tep) = c(&quot;abundance&quot;, &quot;phylum&quot;)
+    tfin = rbind(other_table, tep)
+    ttfin = cbind(tfin,group)
+    fin_table = rbind(fin_table, ttfin)
+    phy = unique(fin_table$phylum)
+  }
+  return(fin_table)
+}
+
+fin_table &lt;- group_bar_chart(pruned)
+fin_table$group = factor(fin_table$group, levels = c(&quot;11/8/2016 Soil&quot;,&quot;11/12/2016 Manure&quot; ,&quot;11/15/2016 Manure Line&quot;,&quot;11/15/2016 Soil&quot;))
+(p &lt;- ggplot(fin_table, aes(x=group,y=abundance, fill=phylum))+geom_bar(stat=&quot;identity&quot;,color=&quot;black&quot;)+labs(y=&quot;relative abundance&quot;)+ scale_fill_hue()+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)))</code></pre>
+<p><img src="tutorials_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+</div>
 
 
 

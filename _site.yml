@@ -10,11 +10,3 @@ navbar:
 output:
   html_document:
     theme: cosmo
-  include:
-      after_body: misc/footer.html
-    toc: yes
-    toc_float:
-      smooth_scroll: yes
-      collapsed: no
-    lib_dir: site_libs
-    self_contained: no

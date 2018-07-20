@@ -1,3 +1,92 @@
 ---
 title: "Tutorials"
 ---
+# StrA-B Gene Analysis
+
+This is a test to see if I can embed R code
+
+```{r}
+library(tidyverse)
+library(ape)
+library(ggplot2)
+library(grid)
+library(plyr)
+library(reshape)
+library(reshape2)
+library(ggthemes)
+library(gridExtra)
+library(corrplot)
+library(dplyr)
+library(vegan)
+library(SpadeR)
+
+library(RColorBrewer)
+library(phyloseq)
+
+library(DESeq2)
+
+
+darte_ed_16s <- import_mothur(mothur_shared_file = "~/Desktop/stability.opti_mcc.shared", mothur_constaxonomy_file = "~/Desktop/stability.cons.taxonomy")
+
+
+metadata <- read.csv("~/Desktop/16slabels.csv", row.names=1)
+sample <- sample_data(metadata)
+sample_data(darte_ed_16s)<- sample
+
+# set rarefying depth
+after_remove_low_depth <- prune_samples(sample_sums(darte_ed_16s) >= 400, darte_ed_16s)
+sample_sums(after_remove_low_depth)
+set.seed(1)
+rare <- rarefy_even_depth(after_remove_low_depth, sample.size = 400,rngseed=TRUE)
+sample_sums(rare)
+
+#remove NTC
+to_remove <- c("NTC")
+pruned <- prune_samples(!(rownames(sample_data(rare)) %in% to_remove), rare)
+
+group_bar_chart <- function(physeq){
+  fin_table  = data.frame()
+  for (group in unique(sample_data(physeq)$DT) ){
+    temp_physeq = prune_samples( (sample_data(physeq)$DT == group), physeq)
+    
+    new_table <- data.frame(taxa_sums(temp_physeq), tax_table(temp_physeq)[,2])
+    colnames(new_table) = c("abundance", "phylum")
+    sum_table = data.frame()
+    for (x in unique(new_table$phylum) ){
+      temp = subset(new_table, phylum==x)
+      su = sum(temp$abundance)
+      sum_table = rbind(sum_table, data.frame(su, temp[1,2]))
+    }
+    
+    colnames(sum_table) = c("abundance", "phylum")
+    perc_table = sum_table
+    for (i in 1:nrow(sum_table)){
+      perc_table[i,1] = sum_table[i,1] / sum(sum_table[,1])
+    }
+    
+    other_table = data.frame()
+    other = c()
+    for (i in 1:nrow(perc_table)){
+      if(perc_table[i,1] > 0.01) {
+        other_table = rbind(other_table, perc_table[i,])
+      }else{
+        other = c(other, perc_table[i,1])
+      }
+    }
+    
+    sum(other)
+    tep = data.frame(sum(other), "other")
+    colnames(tep) = c("abundance", "phylum")
+    tfin = rbind(other_table, tep)
+    ttfin = cbind(tfin,group)
+    fin_table = rbind(fin_table, ttfin)
+    phy = unique(fin_table$phylum)
+  }
+  return(fin_table)
+}
+
+fin_table <- group_bar_chart(pruned)
+fin_table$group = factor(fin_table$group, levels = c("11/8/2016 Soil","11/12/2016 Manure" ,"11/15/2016 Manure Line","11/15/2016 Soil"))
+(p <- ggplot(fin_table, aes(x=group,y=abundance, fill=phylum))+geom_bar(stat="identity",color="black")+labs(y="relative abundance")+ scale_fill_hue()+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)))
+
+```
