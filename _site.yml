@@ -1,4 +1,4 @@
-name: "Tutorials"
+name: "Hinsa Lab Tutorials"
 output_dir: "docs"
 navbar:
   title: "Tutorials"
