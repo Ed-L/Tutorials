@@ -1,12 +1,12 @@
-name: "cars"
+name: "Tutorials"
 output_dir: "docs"
 navbar:
-  title: "Cars"
+  title: "Tutorials"
   left:
     - text: "Home"
       href: index.html
-    - text: "Speed and Distance"
-      href: speed-and-distance.html
+    - text: "Tutorials"
+      href: tutorials.html
 output:
   html_document:
     theme: cosmo
