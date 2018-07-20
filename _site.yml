@@ -9,4 +9,8 @@ navbar:
    href: speed-and-distance.html
 output:
   html_document:
+<<<<<<< HEAD
  theme: cosmo
+=======
+ theme: cosmo
+>>>>>>> 060937e82709b1d435ed939bebf16dfb619b9115
