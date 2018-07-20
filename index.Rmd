@@ -15,3 +15,31 @@ Welcome to Hinsa Lab's tutorial site. This site was created by Ed Lopatto to doc
 This site is a work in progress as Ed slowly crawls on his way to learning github and rmarkdown.
 Any questions can be directed to lopattoe@grinnell.edu 
 
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(ggtree)
+library(treeio)
+library(dplyr)
+
+
+tree <- read.tree("~/desktop/fungene\ str/tree_file")
+meta <- read.csv("~/desktop/fungene\ str/strtreedata.csv")
+
+
+#tree
+p1 <- ggtree(tree, layout="circular")
+
+
+treemeta<- meta[c("ID","Cluster", "Primer", "Number")]
+
+
+p1 %<+% treemeta+
+  geom_tiplab(aes(label=Cluster, color=Primer), size=2, offset = 0.02, align=TRUE) +
+  geom_point(aes(size=Number, color=Primer))+
+  scale_colour_manual(labels = c("None","strA","strB",""), values = c("black","darkgreen","blue"))+
+  geom_cladelabel(node=120, label="strB", align=TRUE, color="blue", offset = 0.3, barsize = 0) +
+  geom_cladelabel(node=152, label="strA", align=TRUE, color = "darkgreen", offset = 0.3, barsize=0)+
+  theme(legend.position = "right")
+
+ 
+```
