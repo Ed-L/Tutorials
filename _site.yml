@@ -7,18 +7,19 @@ navbar:
       href: index.html
     - text: "Tutorials"
       menu:
-        - text: "Heading 1"
         - text: "str Gene Variant Analysis"
           href: str_tutorial.html
         - text: "16s Community Analysis"
           href: community_tutorial.html
-        
+    - text: "Helpful References"
+      href: helpful_references.html
+
 output:
   html_document:
     theme: cosmo
-    toc: yes
-    toc_float:
-      smooth_scroll: yes
-      collapsed: no
-    lib_dir: site_libs
-    self_contained: no
+    #toc: yes
+    #toc_float:
+      #smooth_scroll: yes
+      #collapsed: no
+    #lib_dir: site_libs
+    #self_contained: no

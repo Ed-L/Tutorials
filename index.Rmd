@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Welcome to Edward Lopatto's tutorial site. This site was created by Ed Lopatto to document bioinformatic skills he preformed during a MAP in the Summer of 2018. The main purpose of this site is to provide documentation for analysis for both Ed (when he forgets what he did) and Prof. Shannon Hinsa's lab.
 
-This site is a work in progress as Ed slowly crawls on his way to learning github and rmarkdown.
+This site is a work in progress as Ed slowly crawls on his way to learning github and Rmarkdown.
 Any questions can be directed to lopattoe@grinnell.edu
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}

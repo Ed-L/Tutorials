@@ -20,9 +20,6 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -170,107 +167,6 @@ $(document).ready(function () {
 
 
 
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = false;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
-
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-  padding-left: 25px;
-  text-indent: 0;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-.tocify-subheader {
-  display: inline;
-}
-.tocify-subheader .tocify-item {
-  font-size: 0.95em;
-}
-
-</style>
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
-
-
 
 
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
@@ -295,14 +191,16 @@ div.tocify {
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-    <li class="dropdown-header">Heading 1</li>
     <li>
-      <a href="page_a.html">str Gene Variant Analysis</a>
+      <a href="str_tutorial.html">str Gene Variant Analysis</a>
     </li>
     <li>
-      <a href="page_b.html">16s Community Analysis</a>
+      <a href="community_tutorial.html">16s Community Analysis</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="helpful_references.html">Helpful References</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -323,28 +221,15 @@ div.tocify {
 </div>
 
 
-<script>
-$(document).ready(function() {
-  $items = $('div#TOC li');
-  $items.each(function(idx) {
-    num_ul = $(this).parentsUntil('#TOC').length;
-    $(this).css({'text-indent': num_ul * 10, 'padding-left': 0});
-  });
-
-});
-</script>
-<p>.tocify-header { text-indent: initial; }</p>
 <div id="welcome" class="section level2">
 <h2>Welcome</h2>
 <p>Welcome to Edward Lopatto’s tutorial site. This site was created by Ed Lopatto to document bioinformatic skills he preformed during a MAP in the Summer of 2018. The main purpose of this site is to provide documentation for analysis for both Ed (when he forgets what he did) and Prof. Shannon Hinsa’s lab.</p>
-<p>This site is a work in progress as Ed slowly crawls on his way to learning github and rmarkdown. Any questions can be directed to <a href="mailto:lopattoe@grinnell.edu">lopattoe@grinnell.edu</a></p>
+<p>This site is a work in progress as Ed slowly crawls on his way to learning github and Rmarkdown. Any questions can be directed to <a href="mailto:lopattoe@grinnell.edu">lopattoe@grinnell.edu</a></p>
 <p><img src="index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 </div>
 
 
 
-</div>
-</div>
 
 </div>
 
