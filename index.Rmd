@@ -1,7 +1,7 @@
 ---
 title: "Front Door"
 author: "Edward Lopatto"
-date: "Last updated July 20, 2018"
+date: "Last updated July 24, 2018"
 ---
 
 ```{r setup, include=FALSE}
@@ -41,5 +41,5 @@ p1 %<+% treemeta+
   geom_cladelabel(node=152, label="strA", align=TRUE, color = "darkgreen", offset = 0.3, barsize=0)+
   theme(legend.position = "right")
 
- 
+
 ```

@@ -8,9 +8,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Background
-I used this workflow to analyze 16s amplicon data from the Grinnell CAFO project, but this tutorial should be applicable to any 16s data.
+I used this workflow to analyze 16s Miseq data from the Grinnell CAFO project, but this tutorial should be applicable to any 16s data.
 
-In order to understand this tutorial, you will need a basic understanding of bash, and R. If you are want to learn either or need a review, see the helpful references tab.
+In order to better understand this tutorial, you will need a basic understanding of bash, and R. If you are want to learn either or need a review, see the helpful references tab. I try to show all of the details, but I may accidentally gloss over rudimentary skills. You should be able to do a quick google search and find what you need in that case. If not, feel free to ask me.
 
 You will also need the following installed on an AWS instance(see MOTHUR hints for instance storage details) or HPC (See references for help):
 
@@ -49,20 +49,22 @@ Using FileZilla, transfer the sequences (including the mock community if you hav
 After the references are updated and sequences uploaded, MOTHUR should be prepped and ready to go.
 
 ## Running MOTHUR
-I thought about writing an original tutorial for using MOTHUR, but it would really be redundant. Pat Schloss and co. made an [amazing tutorial](https://mothur.org/wiki/EDAMAME) and, now that you are set up, you should be able to follow it exactly. Using the defaults should work well for our purposes. For this tutorial, you will only need to follow the tutorial through to the "Analysis" section, where you rename files right before subsampling, but you are welcome to complete the MOTHUR tutorial. Once you have files called "stability.opti_mcc.shared" and "stability.cons.taxonomy" you are good to move on to the next section.
+I thought about writing an original tutorial for using MOTHUR, but it would be redundant. Pat Schloss and co. made an [amazing tutorial](https://mothur.org/wiki/EDAMAME) and now that you are set up, you should be able to follow the tutorial exactly. Using the defaults should work well for our purposes.
+For this tutorial, you will only need to follow the tutorial through to the "Analysis" section, where you rename files right before subsampling, but you are welcome to complete the MOTHUR tutorial. Once you have files called "stability.opti_mcc.shared" and "stability.cons.taxonomy" you are good to move on to the next section.
 
 However, I will give you some helpful hints, and solutions to problems I encountered.
 
 * File names can be what ever you want them to be. They don't need to end in ".stability". Make sure they make sense to you and are easy to keep track of. Ideally, they also would make sense to other people, too.
 * Warnings are just warnings. Be aware of them, but it's probably ok to continue on. Errors will not let you continue.
 * Don't just blindly follow the tutorial. Understand what each step does and pay attention. Sometimes, the defaults won't work or throw away too many sequences!
-* I recommend doing the analysis in one session (might require skill with [tmux](https://github.com/edamame-course/2015-tutorials/blob/master/final/2015-06-22_tmux.md)), but you can do MOTHUR in multiple sessions. Make sure you are calling the right directories (I used [set.dir](https://mothur.org/wiki/Set.dir) a lot).
+* I recommend doing the analysis in one session (might require skill with [tmux](https://github.com/edamame-course/2015-tutorials/blob/master/final/2015-06-22_tmux.md)), but you can do MOTHUR in multiple sessions. If you do multiple sessions, make sure you are calling the right directories (I used [set.dir](https://mothur.org/wiki/Set.dir) a lot).
 
 If at some point MOTHUR is not behaving and you get stuck, be mindful of the following:
 
 * Try going back and redoing the commands from the previous section. MOTHUR requires steps be in exact order, and its possible you missed a prior command or did not work properly.
-* MOTHUR takes up a huge amount of space. It outputs lots of text files per a sequence, and each sequence is already taking up a large amount of memory. Try restarting on a larger instance with more memory. To analyze about 150 sequences, I had to use a m4.4xlarge and added on even more storage. **NOTE: THE LARGER THE INSTANCE THE MORE IT COSTS. AMAZON ALSO JUST CHANGED THEIR POLICY. YOU NEED TO ASK PERMISSION TO USE LARGER INSTANCES. PLAN AHEAD, BECAUSE IT MAY TAKE TIME TO OBTAIN.**
+* MOTHUR takes up a huge amount of space. It outputs lots of text files per a sequence, and each sequence is already taking up a large amount of memory. Try restarting on a larger instance with more memory. To analyze about 150 sequences, I had to use a m4.4xlarge and added on even more storage. **NOTE: THE LARGER THE INSTANCE THE MORE IT COSTS. (update 7/24/18) AMAZON ALSO JUST CHANGED THEIR POLICY. YOU NEED TO ASK PERMISSION TO USE LARGER INSTANCES. PLAN AHEAD, BECAUSE IT MAY TAKE TIME TO OBTAIN.**
 * The [MOTHUR forums](https://www.mothur.org/forum/) can be helpful, but they are hard to search.
+* Use google as a last resort.
 * Email lopatto@grinnell.edu with the log file and description of the problem. I may be able to help you, but if I'm not, I have access to people who know more than me.
 
 **Make sure to cite: Kozich JJ, Westcott SL, Baxter NT, Highlander SK, Schloss PD. (2013): Development of a dual-index sequencing strategy and curation pipeline for analyzing amplicon sequence data on the MiSeq Illumina sequencing platform. Applied and Environmental Microbiology. 79(17):5112-20.**
@@ -71,7 +73,7 @@ Once you have the file called "stability.opti_mcc.shared" and "stability.cons.ta
 
 #R Analysis (Phyloseq)
 ##Loading and prepping the data
-So now that you have "stability.opti_mcc.shared", you should boot up Rstudio and are ready for analysis. For the purposes of this tutorial, I will show mostly everything that doesn't take up too much space - both the r code input (in gray) and raw output (in white) including warning messages. A lot of this is modified from the [Phyloseq tutorial](https://joey711.github.io/phyloseq/tutorials-index.html).
+So now that you have "stability.opti_mcc.shared" and "stability.cons.taxonomy", you should boot up Rstudio and are ready for analysis. For the purposes of this tutorial, I will show mostly everything that doesn't take up too much space - both the r code input (in gray) and raw output (in white) including warning messages. A lot of this is modified from the [Phyloseq tutorial](https://joey711.github.io/phyloseq/tutorials-index.html).
 
 First, load the libraries. Some of these may be redundant, but thats a problem to solve at a later date. There will be lots of warnings too, but it should be fine to ignore them.
 ```{r, echo=TRUE, warning=FALSE}
@@ -94,7 +96,7 @@ library(phyloseq)
 library(DESeq2)
 ```
 
-Lets import the data. You should also make and import a meta data .csv file. The meta file will contain details about each sample.
+Lets import the data. You should also make and import a meta data .csv file. The meta file will contain details about each sample (ex. temperature and date).
 ```{r, echo=TRUE}
 #Importing output from MOTHUR
 darte_ed_16s <- import_mothur(mothur_shared_file = "~/Desktop/stability.opti_mcc.shared", mothur_constaxonomy_file = "~/Desktop/stability.cons.taxonomy")
@@ -113,7 +115,7 @@ darte_ed_16s
 Our data is messy. It's not rarefied. It has NTC sequences in it. It has lots of small taxa with very low abundances. The following will clean your data in various ways, so you can graph and analyze it in many ways. We won't use all of the cleaned data types in this tutorial, but it gives you options to think about. Make sure to change details, like your definition of too small taxa abundance, to fit your needs.
 
 *Common question: What depth do I rarefy at?*
-Well there isn't a right answer. Currently, I've heard rarefying at 10,000 sequences is ideal, and no less than 5,000 sequences. You can make a rarefaction curve, to make a more precise decision. But, I like Pat Schloss's advice: If have crappy data (rarefying at anywhere near 5,000 sequences eliminates too much of your data to answer your questions), redo the sequencing or sequence more replicates. If you can't, rarefy at the depth of the lowest samples. Pat says the lowest he has gone is about 500 sequences. This is OK, but you need to be aware that this alters the picture of your data, and acknowledge that in the write up.
+*Answer: Well there isn't a right answer. Currently, I've heard rarefying at 10,000 sequences is ideal, and no less than 5,000 sequences. You can make a rarefaction curve in MOTHUR and plot it in R, to make a more precise decision. But, I like Pat Schloss's advice: If you have crappy data (rarefying at anywhere near 5,000 sequences eliminates too much of your data to answer your questions), redo the sequencing, sequence more replicates, or get more DNA. If you can't, rarefy at the lowest depth that answers your questions. Pat says the lowest he has gone is about 500 sequences. This is OK, but you need to be aware that this alters the picture of your data, and acknowledge that in the write up.*
 
 Consult others and try different rarefying depths to see if the picture alters. For this tutorial I use 400, because I'm working with bad data.
 
@@ -143,7 +145,8 @@ darte_ed_16s_filter_re_g = tax_glom(darte_ed_16s_filter2, "Rank2")
 ```
 
 #Figures and statistics in R
-Here are some figure and statistical samples that can be tweaked to your preferences.
+Here are some figures and statistical examples that can be tweaked to your preferences.
+
 ## Stacked Bar Figures
 This will give you a stacked bar of taxonomy composition (in this case phyla) for each sample. I also facetted by type. If you want by Genus set fill="Rank3". (Or just rename the ranks like a sensible person unlike me)
 ```{r, echo=TRUE}
@@ -322,7 +325,7 @@ heatmap(otu_table(gpt))
 ```
 
 ## Calculating Abundance differences
-So you your treatment types are different in phyla composition, but you want to know exactly what is the abundance difference of each phyla type. I use DEseq2 to calculate this. NOTE: This code can take awhile to run. Sit back and relax (and hope it works the first time). 
+So you your treatment types are different in phyla composition, but you want to know exactly what is the abundance difference of each phyla type. I use DEseq2 to calculate this. NOTE: This code can take awhile to run. Sit back and relax (and hope it works the first time).
 
 ```{r, echo=TRUE}
 #This function requires the data in a different format which is why we are re-filtering the data

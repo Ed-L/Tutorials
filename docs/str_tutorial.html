@@ -220,6 +220,89 @@ $(document).ready(function () {
 
 <div id="stra-b-gene-analysis" class="section level1">
 <h1>StrA-B Gene Analysis</h1>
+<div id="background" class="section level2">
+<h2>Background</h2>
+<p>This is a small project that practices fetching data from databases and annotating metagenomes. In this tutorial, I analyze the genes <em>strA</em> and <em>strB</em>, but you can choose other genes. I follow the paper <a href="https://academic.oup.com/femsec/article/94/4/fiy006/4810543"><em>Practical implications of erythromycin resistance gene diversity on surveillance and monitoring of resistance</em></a> from Choi et al. (2018).</p>
+<p>There is a lot of bioinformatic assumptions that this workflow is based on and I will try to explain them as I go. You may disagree with some of them, and thats OK. I challenge you to try it your way, compare your results with mine, and then convince me why your way is advantageous.</p>
+<p>Things you will need:</p>
+<ul>
+<li>AWS instance (see EDAMAME in references if you need help) or high performance computer</li>
+<li>Knowledge of bash</li>
+<li>FileZilla or another way to transfer files</li>
+<li>Preassembled metagenomes (You can assemble new metagenomes, but that will add two months to this project)</li>
+<li>Various Programs: NCBI blast, CD-HIT, FastTree, and various scripts (but I will help install now)</li>
+</ul>
+</div>
+<div id="program-downloads" class="section level2">
+<h2>Program downloads</h2>
+<p>Links to programs you will need</p>
+<ul>
+<li></li>
+<li><a href="https://github.com/weizhongli/cdhit/releases">CD-HIT</a>.</li>
+</ul>
+<pre><code>#Download and unzip CD-HIT
+wget link sequences
+tar xvf cd-hit-2006-0215.tar.gz --gunzip
+cd cd-hit-2006
+#compile
+make</code></pre>
+</div>
+<div id="fetching" class="section level2">
+<h2>Fetching</h2>
+<p>Go to <a href="http://fungene.cme.msu.edu/">RDP fungene repository</a> and pick your favorite gene(s). It is better to work with the Resfams if your gene has one. <em>strA-B</em> don’t have a Resfam so I just used the respective gene links. Filter your genes. Odds are you have many hits, so you want to narrow down the genes to the ones that are more likely to convey resistance. I set the HMM threshold to 97%. Once you have done quality control, select all the sequences, and click “begin analysis”. Select “nucleotide download”, unclick “align”, and download the sequences.</p>
+<p>Make a directory called sequences, and move these sequences that directory. Then combine them into one file.</p>
+<pre><code>#make directory and navigate to it
+mkdir sequences
+cd sequences
+
+#combine files
+cat * &gt; allseqs</code></pre>
+</div>
+<div id="clustering" class="section level2">
+<h2>Clustering</h2>
+<p>Now we need to cluster the sequences using CD-HIT, to make analysis easier. [Here is a good guide]((<a href="http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf" class="uri">http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf</a>) on how to use it.</p>
+<pre><code>#Run CD-HIT
+cd-hit -i allseqs -o db99 -c 0.99 -n 5</code></pre>
+<p>where allseqs is the filename of input, db99 is output, 0.99, means 99% identity, is the clustering threshold 5 is the size of word</p>
+<p>Choose of word size: -n 5 for thresholds 0.7 ~ 1.0 -n 4 for thresholds 0.6 ~ 0.7 -n 3 for thresholds 0.5 ~ 0.6 -n 2 for thresholds 0.4 ~ 0.5</p>
+<p><em>Question: Why cluster at 99%?</em> <em>Answer: It makes justification of later analysis easier. I will explain better later, but a good exercise is to graph the number of clusters at different cutoff thresholds. The graph will tell you a lot about the variation within the gene, and maybe that 99% threshold isn’t good.</em></p>
+<p>For later analysis, we need a spreadsheet numbering the cluters. Open up db99 in excel and using delimiters isolate the accession number. Number them from 1 to 91. Save this as clusters.csv.</p>
+</div>
+<div id="alignment" class="section level2">
+<h2>Alignment</h2>
+<p>Now that we have 91 clusters, we will use these clusters as representatives of our gene which makes are queries shorter. I use <a href="https://www.ebi.ac.uk/Tools/msa/muscle/">MUSCLE</a> to align the sequences. Because we have less than 500 clusters, we can use the website. If you have more than 500 clusters, you will need to download MUSCLE on your server or try a different cluster threshold.</p>
+<p>Transfer your clustered sequences fasta file (db99) and input it into MUSCLE. Sit back and wait for the magic to happen. Once it finishes, download the aligned file and put in back onto your instance.</p>
+</div>
+<div id="phylogenetic-tree" class="section level2">
+<h2>Phylogenetic tree</h2>
+<p>We use FastTree to make a tree file.</p>
+<pre><code>FastTree -gtr -nt &lt; alignment.file &gt; tree_file</code></pre>
+<p>Take your tree_file and put it onto your computer. We will visualize and annotate it in R.</p>
+</div>
+<div id="primer-search" class="section level2">
+<h2>Primer search</h2>
+<p>So you have gathered published primer sequences and want to know how well they can amplify this gene. Put them into fasta format.</p>
+<pre><code>#example primer fasta
+&gt;F1
+agtcctcgaaggccttttaa
+&gt;R1
+aggggtccatacgcgcaagt</code></pre>
+<p>For our purposes, we will consider a primer to amplify a cluster if both forward and reverse primers were required to share 100% nucleotide similarity over a minimum of 17 bp of the primer length.</p>
+<p><em>Question: Why 100% similarity? Can’t primers work if they are off by only one nucleotide or even sometimes more?</em> <em>Answer: Yes. However, it is hard to predict how primers behave. We are being very conservative in our estimates. Given that our clusters already have small variation within in them, allowing one nucleotide difference in the primer makes finding matches even more complicated.</em></p>
+<p>Luckily, Jin has a script that does this.</p>
+<pre><code>python jinscript.py input output</code></pre>
+<p>Now we have what clusters are hit by which primer. Using clusters.csv and r, we can merge documents to also gain the cluster number. Make an excel sheet with each primer, the cluster numbers they hit, and the cluster accessions.</p>
+<p>Go back to R and plot the tree (see Phylogenetic tree section). We can add the new meta data to the figure like this.</p>
+<pre><code>Annotated tree plot</code></pre>
+</div>
+<div id="taxonomy" class="section level2">
+<h2>Taxonomy</h2>
+<p>We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy.</p>
+<p>Analysis</p>
+</div>
+<div id="metagenomic-annotation-and-analysis" class="section level2">
+<h2>Metagenomic Annotation and Analysis</h2>
+</div>
 </div>
 
 
