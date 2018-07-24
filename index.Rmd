@@ -1,5 +1,5 @@
 ---
-title: "Home page"
+title: "Front Door"
 author: "Edward Lopatto"
 date: "Last updated July 20, 2018"
 ---

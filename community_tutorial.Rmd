@@ -12,7 +12,7 @@ I used this workflow to analyze 16s amplicon data from the Grinnell CAFO project
 
 In order to understand this tutorial, you will need a basic understanding of bash, and R. If you are want to learn either or need a review, see the helpful references tab.
 
-You will also need the following installed on an AWS instance or HPC (See references for help):
+You will also need the following installed on an AWS instance(see MOTHUR hints for instance storage details) or HPC (See references for help):
 
 * MOTHUR (There is a [preloaded AWS instance](https://mothur.org/wiki/Mothur_AMI) that is convenient, but you can also load a fresh MOTHUR)
 
@@ -61,7 +61,7 @@ However, I will give you some helpful hints, and solutions to problems I encount
 If at some point MOTHUR is not behaving and you get stuck, be mindful of the following:
 
 * Try going back and redoing the commands from the previous section. MOTHUR requires steps be in exact order, and its possible you missed a prior command or did not work properly.
-* MOTHUR takes up a huge amount of space. It outputs lots of text files per a sequence, and each sequence is already taking up a large amount of memory. Try restarting on a larger instance with more memory. To analyze about 150 sequences, I had to use a m5.12xlarge and added on even more storage. NOTE: THE LARGER THE INSTANCE THE MORE IT COSTS.
+* MOTHUR takes up a huge amount of space. It outputs lots of text files per a sequence, and each sequence is already taking up a large amount of memory. Try restarting on a larger instance with more memory. To analyze about 150 sequences, I had to use a m4.4xlarge and added on even more storage. **NOTE: THE LARGER THE INSTANCE THE MORE IT COSTS. AMAZON ALSO JUST CHANGED THEIR POLICY. YOU NEED TO ASK PERMISSION TO USE LARGER INSTANCES. PLAN AHEAD, BECAUSE IT MAY TAKE TIME TO OBTAIN.**
 * The [MOTHUR forums](https://www.mothur.org/forum/) can be helpful, but they are hard to search.
 * Email lopatto@grinnell.edu with the log file and description of the problem. I may be able to help you, but if I'm not, I have access to people who know more than me.
 
@@ -71,10 +71,10 @@ Once you have the file called "stability.opti_mcc.shared" and "stability.cons.ta
 
 #R Analysis (Phyloseq)
 ##Loading and prepping the data
-So now that you have "stability.opti_mcc.shared", you should boot up Rstudio and are ready for analysis. For the purposes of this tutorial, I will show EVERYTHING - both the r code input (in gray) and raw output (in white) including warning messages. A lot of this is modified from the [Phyloseq tutorial](https://joey711.github.io/phyloseq/tutorials-index.html).
+So now that you have "stability.opti_mcc.shared", you should boot up Rstudio and are ready for analysis. For the purposes of this tutorial, I will show mostly everything that doesn't take up too much space - both the r code input (in gray) and raw output (in white) including warning messages. A lot of this is modified from the [Phyloseq tutorial](https://joey711.github.io/phyloseq/tutorials-index.html).
 
-First, load the libraries. Some of these may be redundant, but thats a problem to solve at a later date.
-```{r, echo=TRUE}
+First, load the libraries. Some of these may be redundant, but thats a problem to solve at a later date. There will be lots of warnings too, but it should be fine to ignore them.
+```{r, echo=TRUE, warning=FALSE}
 library(ape)
 library(grid)
 library(plyr)
@@ -120,16 +120,16 @@ Consult others and try different rarefying depths to see if the picture alters. 
 ```{r, echo=TRUE}
 # set rarefying depth
 after_remove_low_depth <- prune_samples(sample_sums(darte_ed_16s) >= 400, darte_ed_16s)
-sample_sums(after_remove_low_depth)
+head(sample_sums(after_remove_low_depth))
 set.seed(1)
 rare <- rarefy_even_depth(after_remove_low_depth, sample.size = 400,rngseed=TRUE)
-sample_sums(rare)
+head(sample_sums(rare))
 
 #remove the NTC sample. Check to make sure it doesn't have too many sequences before you through it away though! NTC and blanks are quality controls.
 to_remove <- c("NTC")
 pruned <- prune_samples(!(rownames(sample_data(rare)) %in% to_remove), rare)
 
- #filter out OTUs less than 10
+#filter out OTUs less than 10
 #darte_ed_16s_filter <- filter_taxa(pruned, function(x) sum(x) > 10, TRUE)
 
  #relative abundance
@@ -273,7 +273,7 @@ theme(legend.background = element_rect(fill="white", size=0.3, linetype="solid",
 
 
 # show the NMDS coordination num
-data.sm
+head(data.sm)
 ```
 
 ##Diversity
@@ -349,7 +349,7 @@ res = results(diagdds, contrast=c("DT", "11/8/2016 Soil", "11/15/2016 Soil"))
 alpha = 0.01
 sigtab = res[which(res$padj < alpha), ]
 sigtab = cbind(as(sigtab, "data.frame"), as(tax_table(darte_ed_16s)[rownames(sigtab), ], "matrix"))
-sigtab
+head(sigtab)
 
 #summary of sig changes
 # Phylum order

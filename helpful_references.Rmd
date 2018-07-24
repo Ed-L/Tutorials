@@ -3,4 +3,32 @@ title: "Helpful References"
 date: "7/23/2018"
 ---
 
-#test
+#Useful Sources
+Below is a collection of useful resources for vairous skills. Most of these are sources I pulled from to create these tutorials. 
+Having a bunch of links means that they will break eventually. If you need them urgently, try googling. Otherwise, let me know to update the links.
+
+## [EDAMAME 2018](https://github.com/edamame-course/2018-Tutorials/wiki/Schedule-EDAMAME-2018#-sunday-24-june-2018)
+EDAMAME was a workshop I went to. The link above is to the schedule, which has tutorials on lots of things including: R, bash, tmux, FileZilla, metagenomics, github, database creation, MOTHUR, and ecological stats. I probably missed a few things. This is a great place to start if you are new. Check out the etherpad on it too!
+
+## [MOTHUR Tutorial](https://mothur.org/wiki/EDAMAME)
+
+## [Phyloseq](https://joey711.github.io/phyloseq/)
+Phyloseq is the R library you will probably use to analyze and visualize your 16S community data. Look for the tutorials tab on the website.
+
+## [Numerical ecology with R](http://www.ievbras.ru/ecostat/Kiril/R/Biblio/R_eng/Numerical%20Ecology%20with%20R%20(use%20R).pdf)
+The people who taught me statistics in R swear by this book. There is also just a plain Numerical ecology version (no R code).
+
+## [Jin's Github](https://github.com/metajinomics)
+Some people are geniuses, and then there is Jin. Jin is from the GERMS lab at Iowa State and can do anything. He has tons of tools, some of which I have borrowed.
+
+## [Germs lab Github](https://github.com/germs-lab)
+This also has useful scripts that you can borrow, but start with Jin's github.
+
+## [Shade Lab Github](https://github.com/ShadeLab)
+Has workflows that may be of use.
+
+## [ggplot2 cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
+
+## [Setting up Github and connecting to Rstudio](https://resources.github.com/articles/github-and-rstudio/)
+
+## Understanding Git resources [1](https://www.sbf5.com/~cduan/technical/git/), [2](http://gitolite.com/gcs.html#), [3](http://eagain.net/articles/git-for-computer-scientists/)

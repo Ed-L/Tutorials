@@ -3,14 +3,14 @@ output_dir: "docs"
 navbar:
   title: "Edward Lopatto"
   left:
-    - text: "Home"
+    - text: "Front Door"
       href: index.html
     - text: "Tutorials"
       menu:
-        - text: "str Gene Variant Analysis"
-          href: str_tutorial.html
         - text: "16s Community Analysis"
           href: community_tutorial.html
+        - text: "str Gene Variant Analysis"
+          href: str_tutorial.html
     - text: "Helpful References"
       href: helpful_references.html
 
