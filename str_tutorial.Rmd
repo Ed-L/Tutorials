@@ -14,22 +14,61 @@ Things you will need:
 * Knowledge of bash
 * FileZilla or another way to transfer files
 * Preassembled metagenomes (You can assemble new metagenomes, but that will add two months to this project)
-* Various Programs: NCBI blast, CD-HIT, FastTree, and various scripts (but I will help install now)
+* Various Programs: NCBI blast, CD-HIT, FastTree, and various scripts (but I will help install them now)
 
 ## Program downloads
 Links to programs you will need
-
-*
+* BLAST
 * [CD-HIT](https://github.com/weizhongli/cdhit/releases).
+* [FastTree](http://www.microbesonline.org/fasttree/#Install)
 
 ```
+#Prep instance for downloads
+sudo bash
+apt-get update
+
+cd /root
+apt-get -y install gcc git screen curl make python-pip
+
+#install blast
+sudo apt-get install ncbi-blast+
+
 #Download and unzip CD-HIT
-wget link sequences
-tar xvf cd-hit-2006-0215.tar.gz --gunzip
+wget https://github.com/weizhongli/cdhit/releases/download/V4.6.8/cd-hit-v4.6.8-2017-1208-source.tar.gz
+tar xvf cd-hit-v4.6.8-2017-1208-source.tar.gz --gunzip
 cd cd-hit-2006
+
 #compile
+sudo apt install make
 make
+
+#install Fasttree
+cd
+apt install FastTree
 ```
+## Scripts
+You will also need some scripts. The simplest way to get these is to copy and paste the script in a blank file, then change permissions. See the example below.
+Scripts you will need:
+
+* [best_hit.py](https://github.com/metajinomics/dev/blob/master/blast_tools/best_hit.py)
+* [count-up.py](https://github.com/Ed-L/Metagenome_tools/blob/master/count-up.py)      
+* [both_hit.py](https://github.com/metajinomics/dev/blob/master/blast_tools/both_hit.py)
+* [fetch_genbank.py](https://github.com/metajinomics/ncbi_tools/blob/master/fetch_genbank.py)
+* [get_taxonomy.py](https://github.com/metajinomics/ncbi_tools/blob/master/get_taxonomy_all.py)
+
+```
+#Setting up Scripts example
+nano
+#copy and paste script
+#Save and enter name (enter name of the script exactly as listed order to follow tutorial)
+#crtl + o
+#exit
+#crtl + x
+
+#Need to change permissions (This is one way of many to do this)
+chmod 777 <script_name>
+```
+*I did not write these scripts. They mostly came from Jin Choi, and the GERMS lab.*
 
 ## Fetching
 Go to [RDP fungene repository](http://fungene.cme.msu.edu/) and pick your favorite gene(s). It is better to work with the Resfams if your gene has one. *strA-B* don't have a Resfam so I just used the respective gene links.
@@ -47,7 +86,7 @@ cat * > allseqs
 ```
 
 ## Clustering
-Now we need to cluster the sequences using CD-HIT, to make analysis easier. [Here is a good guide]((http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf) on how to use it.
+Now we need to cluster the sequences using CD-HIT, to make analysis easier. [Here is a good guide](http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf) on how to use it.
 
 ```
 #Run CD-HIT
@@ -71,6 +110,8 @@ Choose of word size:
 
 For later analysis, we need a spreadsheet numbering the cluters. Open up db99 in excel and using delimiters isolate the accession number. Number them from 1 to 91. Save this as clusters.csv.
 
+You can also get the number of sequences in each cluster from the db99.clstr file.
+
 ## Alignment
 Now that we have 91 clusters, we will use these clusters as representatives of our gene which makes are queries shorter. I use [MUSCLE](https://www.ebi.ac.uk/Tools/msa/muscle/) to align the sequences. Because we have less than 500 clusters, we can use the website. If you have more than 500 clusters, you will need to download MUSCLE on your server or try a different cluster threshold.
 
@@ -80,12 +121,46 @@ Transfer your clustered sequences fasta file (db99) and input it into MUSCLE. Si
 We use FastTree to make a tree file.
 
 ```
-FastTree -gtr -nt < alignment.file > tree_file
+FastTree -gtr -nt alignment_file tree_file
 ```
 Take your tree_file and put it onto your computer. We will visualize and annotate it in R.
 
+```{r, echo=TRUE, warning=FALSE}
+#back in R
+
+#You can download ggtree and treeio using
+#source("http://bioconductor.org/biocLite.R")
+#biocLite()
+#biocLite(ggtree)
+#biocLite(treeio)
+
+
+library(tidyverse)
+library(ggplot2)
+library(ggtree)
+library(treeio)
+
+#import tree file from FastTree
+tree <- read.tree("~/desktop/fungene\ str/tree_file")
+
+#import meta data. I had Accession number (which I had labeled "ID"), cluster number, and number of sequences in each cluster at this point
+meta <- read.csv("~/desktop/fungene\ str/strtreedata.csv")
+meta <- meta[c("ID","Cluster","Number")]
+
+#tree
+p1 <- ggtree(tree)
+p1
+
+p1 %<+% meta +
+  geom_tiplab(aes(label=Cluster), size=2, offset = 0.02, align=TRUE) +
+  geom_point(aes(size=Number))
+```
+*Note: At this point I noticed one of my clusters wasn't labeled. It turned out two of my clusters shared a gene accession number. I couldn't find a better way to deal with this other than changing the accessions of one of the clusters manually and keeping note of this. You might have to manually change it in the alignment file too. Throughout this analysis, I needed to switch from my manual accession number to the actual accession. Just be sure to be careful or work on a better solution.*
+
+Awesome! Now we have a gene phylogeny. Let's add primer coverage to it.
+
 ## Primer search
-So you have gathered published primer sequences and want to know how well they can amplify this gene. Put them into fasta format.
+So you have gathered published primer sequences and want to know how well they can amplify this gene. Put the primers into fasta format.
 ```
 #example primer fasta
 >F1
@@ -99,15 +174,52 @@ For our purposes, we will consider a primer to amplify a cluster if both forward
 *Question: Why 100% similarity? Can't primers work if they are off by only one nucleotide or even sometimes more?*
 *Answer: Yes. However, it is hard to predict how primers behave. We are being very conservative in our estimates. Given that our clusters already have small variation within in them, allowing one nucleotide difference in the primer makes finding matches even more complicated.*
 
-Luckily, Jin has a script that does this.
+Luckily, we can make blast do this for us. But first, we need to make our database into NCBI format.
 ```
-python jinscript.py input output
+#makeblastdb -in <nifh-db> -dbtype nucl -out <nifh-db>
+
+makeblastdb -in db99 -dbtype nucl -out db99-NCBI.fa
 ```
-Now we have what clusters are hit by which primer. Using clusters.csv and r, we can merge documents to also gain the cluster number. Make an excel sheet with each primer, the cluster numbers they hit, and the cluster accessions.
+
+Now use our primers as the blast query against our database. Note that the database input is db99-NCBI.fa even though we made three files when making the database.
+```
+blastn -db db99-NCBI.fa -query mock.primer.txt -out mock_primerXrefseq_genomic.out -evalue 1e-5 -outfmt 6 -task blastn-short
+```
+Now we have what clusters are hit by which primer. Using clusters.csv and r, we can merge documents to also gain the cluster number. Make an excel sheet with each primer, the target gene to be amplified, the cluster numbers they hit, and the cluster accessions.
 
 Go back to R and plot the tree (see Phylogenetic tree section). We can add the new meta data to the figure like this.
-```
-Annotated tree plot
+```{r, echo=TRUE, warning=FALSE}
+tree <- read.tree("~/desktop/fungene\ str/tree_file")
+meta <- read.csv("~/desktop/fungene\ str/strtreedata.csv")
+
+
+
+#primereval is my primer meta data, "ID" is accession number
+primereval <- read.csv("~/desktop/fungene\ str/Copy\ of\ strprimereval.csv")
+primerevalclusters <- merge(primereval,meta,by="ID")
+reduced <- primerevalclusters[c("Primer.x", "Cluster.")]
+write.csv(reduced, file = "primerclusters.csv")
+
+#tree
+p1 <- ggtree(tree)
+
+
+treemeta<- meta[c("ID","Cluster", "Primer", "Number")]
+
+
+p1 %<+% treemeta+
+  geom_tiplab(aes(label=Cluster, color=Primer), size=2, offset = 0.02, align=TRUE) +
+  geom_point(aes(size=Number, color=Primer))+
+  scale_colour_manual(labels = c("None","strA","strB",""), values = c("black","darkgreen","blue"))+
+  geom_cladelabel(node=120, label="strB", align=TRUE, color="blue", offset = 0.12, barsize = 0) +
+  geom_cladelabel(node=152, label="strA", align=TRUE, color = "darkgreen", offset = 0.12, barsize=0)+
+  theme(legend.position = "right")
+  ggsave(filename = "strtree.pdf")
+
+#see node for choosing clade label.
+ggtree(tree) + geom_text2(aes(subset=!isTip, label=node), hjust=-.2)+geom_tiplab()
+
+#If your primer doesn't amplify closely related clades, then you can't use clade labels. You can always write in labels in illustrator.
 ```
 ## Taxonomy
 We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy.
