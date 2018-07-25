@@ -35,4 +35,4 @@ Has workflows that may be of use.
 
 ## [Beginner's guide to DEseq2](https://bioc.ism.ac.jp/packages/2.14/bioc/vignettes/DESeq2/inst/doc/beginner.pdf)
 
-## [Guide to CD-HIT]((http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf)
+## [Guide to CD-HIT](http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf)

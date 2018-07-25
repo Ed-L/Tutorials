@@ -18,6 +18,7 @@ Things you will need:
 
 ## Program downloads
 Links to programs you will need
+
 * BLAST
 * [CD-HIT](https://github.com/weizhongli/cdhit/releases).
 * [FastTree](http://www.microbesonline.org/fasttree/#Install)
@@ -161,6 +162,7 @@ p1 %<+% meta +
   geom_tiplab(aes(label=Cluster), size=2, offset = 0.02, align=TRUE) +
   geom_point(aes(size=Number))
 ```
+
 *Note: At this point I noticed one of my clusters wasn't labeled. It turned out two of my clusters shared a gene accession number. I couldn't find a better way to deal with this other than changing the accessions of one of the clusters manually and keeping note of this. You might have to manually change it in the alignment file too. Throughout this analysis, I needed to switch from my manual accession number to the actual accession. Just be sure to be careful or work on a better solution.*
 
 Awesome! Now we have a gene phylogeny. Let's add primer coverage to it.
@@ -256,7 +258,7 @@ sub <- merged[c("Accession.number", "phylum", "class", "order")]
 #These aggregate by a taxonomic unit and then get percentage
 #pick which one you want
 
-#phylaaggregate <- count(sub, phylum) 
+#phylaaggregate <- count(sub, phylum)
 #phylaaggregate$pct <- phylaaggregate$n / sum(phylaaggregate$n)
 #phylaaggregate
 
