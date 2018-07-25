@@ -17,9 +17,8 @@ navbar:
 output:
   html_document:
     theme: cosmo
-    #toc: yes
-    #toc_float:
-      #smooth_scroll: yes
-      #collapsed: no
-    #lib_dir: site_libs
-    #self_contained: no
+    toc: yes
+    toc_float:
+      smooth_scroll: yes
+      collapsed: no
+    css: style.css
