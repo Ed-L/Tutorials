@@ -375,11 +375,11 @@ darte_ed_16s_filter_re_g = tax_glom(darte_ed_16s_filter2, &quot;Rank2&quot;)</co
 <p>This will give you a stacked bar of taxonomy composition (in this case phyla) for each sample. I also facetted by type. If you want by Genus set fill=“Rank3”. (Or just rename the ranks like a sensible person unlike me)</p>
 <pre class="r"><code>#stacked bar by sample
 plot_bar(darte_ed_16s_filter_re_g, fill=&quot;Rank2&quot;, facet_grid= &quot;.~Type&quot;) + scale_fill_hue()</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>You can also display select individual samples</p>
 <pre class="r"><code>plot_bar(darte_ed_16s_filter_re_g, fill=&quot;Rank2&quot;) + scale_fill_hue() +scale_x_discrete(limits=c(&quot;AH110MT2&quot;))</code></pre>
 <pre><code>## Warning: Removed 1656 rows containing missing values (position_stack).</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 <p>This will give you the average taxa composition of each treatment type. I borrowed and edited the function from Jin Choi of the GERMS lab at Iowa State University.</p>
 <pre class="r"><code>#Jin&#39;s stacked bar function
 # You need to change &quot;DT&quot; into your name of treatment
@@ -429,7 +429,7 @@ group_bar_chart &lt;- function(physeq){
 fin_table &lt;- group_bar_chart(pruned)
 fin_table$group = factor(fin_table$group, levels = c(&quot;11/8/2016 Soil&quot;,&quot;11/12/2016 Manure&quot; ,&quot;11/15/2016 Manure Line&quot;,&quot;11/15/2016 Soil&quot;))
 (p &lt;- ggplot(fin_table, aes(x=group,y=abundance, fill=phylum))+geom_bar(stat=&quot;identity&quot;,color=&quot;black&quot;)+labs(y=&quot;relative abundance&quot;)+ scale_fill_hue()+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)))</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 <div id="boxplot-by-average-phyla" class="section level2">
 <h2>Boxplot by average phyla</h2>
@@ -439,7 +439,7 @@ phylum10 = names(sort(taxa_sums(tax), TRUE)[1:10])
 top10=prune_taxa(phylum10, tax)
 dat &lt;- psmelt(top10)
 ggplot(dat, aes(Type, Abundance))  + facet_wrap(~Rank2, ncol=5, scales= &quot;free&quot;) + geom_boxplot(aes(x = Type, y = Abundance, fill= Type))+theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
 <div id="nmds-ordination" class="section level2">
 <h2>NMDS Ordination</h2>
@@ -554,7 +554,7 @@ scale_color_brewer(palette=&quot;Set1&quot;) + theme(legend.position = c(0.11, 0
 theme(legend.background = element_rect(fill=&quot;white&quot;, size=0.3, linetype=&quot;solid&quot;, colour=&quot;black&quot;))+stat_ellipse()+labs(color=&quot;Day&quot;)</code></pre>
 <pre><code>## Too few points to calculate an ellipse</code></pre>
 <pre><code>## Warning: Removed 1 rows containing missing values (geom_path).</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <pre class="r"><code># show the NMDS coordination num
 head(data.sm)</code></pre>
 <pre><code>##                      NMDS1       NMDS2                DT
@@ -571,7 +571,7 @@ head(data.sm)</code></pre>
 <pre class="r"><code>#Diversity Boxplots
 p &lt;- plot_richness(pruned, x=&quot;DT&quot;, measures=c(&quot;Shannon&quot;))
 ggplot(p$data, aes(x = DT, y = value, color = NULL))+geom_boxplot(alpha=0)+geom_jitter(width=0.2)</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <pre class="r"><code>#statistical test
 divtest &lt;- aov(value ~ DT,p$data)
 summary(divtest)</code></pre>
@@ -610,7 +610,7 @@ ig = make_network(pruned, type = &quot;samples&quot;, distance = &quot;bray&quot
 plot_network(ig, pruned, color = &quot;DT&quot;, line_weight = 0.4, label = NULL)</code></pre>
 <pre><code>## Warning: attributes are not identical across measure variables; they will
 ## be dropped</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <p>That was messy and does not tell us any taxonomic information. Lets only plot the top 100 abundant OTUs and plot by phyla.</p>
 <pre class="r"><code># prune to just the top 100 most abundant OTUs across all samples (crude).
 GP100 = prune_taxa(names(sort(taxa_sums(pruned), TRUE))[1:100], pruned)
@@ -618,7 +618,7 @@ jg = make_network(GP100, &quot;taxa&quot;, &quot;jaccard&quot;, 0.3)
 plot_network(jg, pruned, &quot;taxa&quot;,color=&quot;Rank2&quot;, line_weight = 0.4, label = NULL)</code></pre>
 <pre><code>## Warning: attributes are not identical across measure variables; they will
 ## be dropped</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 <div id="heatmaps" class="section level2">
 <h2>Heatmaps</h2>
@@ -629,11 +629,11 @@ plot_heatmap(gpt, &quot;NMDS&quot;, &quot;bray&quot;, &quot;Type&quot;, &quot;Ra
 <pre><code>## Warning in metaMDS(veganifyOTU(physeq), distance, ...): stress is (nearly)
 ## zero: you may have insufficient data</code></pre>
 <pre><code>## Warning: Transformation introduced infinite values in discrete y-axis</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <p>Alternatively, you can do:</p>
 <pre class="r"><code>#Another heatmap way
 heatmap(otu_table(gpt))</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
 <div id="calculating-abundance-differences" class="section level2">
 <h2>Calculating Abundance differences</h2>
@@ -743,7 +743,7 @@ y &lt;- sigtab[c(&quot;log2FoldChange&quot;,&quot;Rank2&quot;)]
 
 #Plot Phylum diff
 ggplot(y, aes(x=Rank2, y=log2FoldChange))+geom_boxplot()</code></pre>
-<p><img src="community_tutorial_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="community_tutorial_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 </div>
 <div id="rda" class="section level2">
 <h2>RDA</h2>

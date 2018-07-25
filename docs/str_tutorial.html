@@ -380,10 +380,10 @@ reduced &lt;- primerevalclusters[c(&quot;Primer.x&quot;, &quot;Cluster.&quot;)]
 write.csv(reduced, file = &quot;primerclusters.csv&quot;)
 
 #tree
-p1 &lt;- ggtree(tree)
-
-
-treemeta&lt;- meta[c(&quot;ID&quot;,&quot;Cluster&quot;, &quot;Primer&quot;, &quot;Number&quot;)]
+p1 &lt;- ggtree(tree)</code></pre>
+<pre><code>## Found more than one class &quot;phylo&quot; in cache; using the first, from namespace &#39;phyloseq&#39;</code></pre>
+<pre><code>## Also defined by &#39;tidytree&#39;</code></pre>
+<pre class="r"><code>treemeta&lt;- meta[c(&quot;ID&quot;,&quot;Cluster&quot;, &quot;Primer&quot;, &quot;Number&quot;)]
 
 
 p1 %&lt;+% treemeta+
@@ -398,6 +398,8 @@ p1 %&lt;+% treemeta+
 <pre><code>## Saving 7 x 5 in image</code></pre>
 <pre class="r"><code>#see node for choosing clade label.
 ggtree(tree) + geom_text2(aes(subset=!isTip, label=node), hjust=-.2)+geom_tiplab()</code></pre>
+<pre><code>## Found more than one class &quot;phylo&quot; in cache; using the first, from namespace &#39;phyloseq&#39;
+## Also defined by &#39;tidytree&#39;</code></pre>
 <p><img src="str_tutorial_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
 <pre class="r"><code>#If your primer doesn&#39;t amplify closely related clades, then you can&#39;t use clade labels. You can always write in labels in illustrator.</code></pre>
 </div>
@@ -423,33 +425,17 @@ sub &lt;- merged[c(&quot;Accession.number&quot;, &quot;phylum&quot;, &quot;class
 
 #find relative abundance of phyla
 #These aggregate by a taxonomic unit and then get percentage
-phylaaggregate &lt;- count(sub, phylum)
-phylaaggregate$pct &lt;- phylaaggregate$n / sum(phylaaggregate$n)
-phylaaggregate</code></pre>
-<pre><code>## # A tibble: 4 x 3
-##   phylum              n      pct
-##   &lt;fct&gt;           &lt;int&gt;    &lt;dbl&gt;
-## 1 Actinobacteria;    54 0.00553 
-## 2 Bacteroidetes;      2 0.000205
-## 3 environmental      61 0.00624 
-## 4 Proteobacteria;  9654 0.988</code></pre>
-<pre class="r"><code>classaggregate &lt;- count(sub, class)
-classaggregate$pct &lt;- classaggregate$n / sum(classaggregate$n)
-classaggregate</code></pre>
-<pre><code>## # A tibble: 10 x 3
-##    class                    n      pct
-##    &lt;fct&gt;                &lt;int&gt;    &lt;dbl&gt;
-##  1 Alphaproteobacteria;   140 0.0143  
-##  2 Bacteroidia;             2 0.000205
-##  3 Betaproteobacteria;     38 0.00389 
-##  4 Corynebacteriales;      38 0.00389 
-##  5 Gammaproteobacteria;  9476 0.970   
-##  6 Glycomycetales;          1 0.000102
-##  7 Micrococcales;           1 0.000102
-##  8 Propionibacteriales;     2 0.000205
-##  9 samples.                61 0.00624 
-## 10 Streptomycetales;       12 0.00123</code></pre>
-<pre class="r"><code>#orderaggregate &lt;- count(sub, order)
+#pick which one you want
+
+#phylaaggregate &lt;- count(sub, phylum) 
+#phylaaggregate$pct &lt;- phylaaggregate$n / sum(phylaaggregate$n)
+#phylaaggregate
+
+#classaggregate &lt;- count(sub, class)
+#classaggregate$pct &lt;- classaggregate$n / sum(classaggregate$n)
+#classaggregate
+
+#orderaggregate &lt;- count(sub, order)
 #orderaggregate$pct &lt;- classaggregate$n / sum(classaggregate$n)
 #orderaggregate</code></pre>
 </div>

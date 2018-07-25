@@ -254,13 +254,15 @@ sub <- merged[c("Accession.number", "phylum", "class", "order")]
 
 #find relative abundance of phyla
 #These aggregate by a taxonomic unit and then get percentage
-phylaaggregate <- count(sub, phylum)
-phylaaggregate$pct <- phylaaggregate$n / sum(phylaaggregate$n)
-phylaaggregate
+#pick which one you want
 
-classaggregate <- count(sub, class)
-classaggregate$pct <- classaggregate$n / sum(classaggregate$n)
-classaggregate
+#phylaaggregate <- count(sub, phylum) 
+#phylaaggregate$pct <- phylaaggregate$n / sum(phylaaggregate$n)
+#phylaaggregate
+
+#classaggregate <- count(sub, class)
+#classaggregate$pct <- classaggregate$n / sum(classaggregate$n)
+#classaggregate
 
 #orderaggregate <- count(sub, order)
 #orderaggregate$pct <- classaggregate$n / sum(classaggregate$n)
