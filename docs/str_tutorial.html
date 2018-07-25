@@ -230,22 +230,62 @@ $(document).ready(function () {
 <li>Knowledge of bash</li>
 <li>FileZilla or another way to transfer files</li>
 <li>Preassembled metagenomes (You can assemble new metagenomes, but that will add two months to this project)</li>
-<li>Various Programs: NCBI blast, CD-HIT, FastTree, and various scripts (but I will help install now)</li>
+<li>Various Programs: NCBI blast, CD-HIT, FastTree, and various scripts (but I will help install them now)</li>
 </ul>
 </div>
 <div id="program-downloads" class="section level2">
 <h2>Program downloads</h2>
-<p>Links to programs you will need</p>
-<ul>
-<li></li>
-<li><a href="https://github.com/weizhongli/cdhit/releases">CD-HIT</a>.</li>
-</ul>
-<pre><code>#Download and unzip CD-HIT
-wget link sequences
-tar xvf cd-hit-2006-0215.tar.gz --gunzip
+<p>Links to programs you will need * BLAST * <a href="https://github.com/weizhongli/cdhit/releases">CD-HIT</a>. * <a href="http://www.microbesonline.org/fasttree/#Install">FastTree</a></p>
+<pre><code>#Prep instance for downloads
+sudo bash
+apt-get update
+
+cd /root
+apt-get -y install gcc git screen curl make python-pip
+
+#install blast
+sudo apt-get install ncbi-blast+
+
+#Download and unzip CD-HIT
+wget https://github.com/weizhongli/cdhit/releases/download/V4.6.8/cd-hit-v4.6.8-2017-1208-source.tar.gz
+tar xvf cd-hit-v4.6.8-2017-1208-source.tar.gz --gunzip
 cd cd-hit-2006
+
 #compile
-make</code></pre>
+sudo apt install make
+make
+
+#install Fasttree
+cd
+apt install FastTree</code></pre>
+</div>
+<div id="scripts" class="section level2">
+<h2>Scripts</h2>
+<p>You will also need some scripts. The simplest way to get these is to copy and paste the script in a blank file, then change permissions. See the example below. Scripts you will need:</p>
+<ul>
+<li><a href="https://github.com/metajinomics/dev/blob/master/blast_tools/best_hit.py">best_hit.py</a></li>
+<li><a href="https://github.com/Ed-L/Metagenome_tools/blob/master/count-up.py">count-up.py</a><br />
+</li>
+<li><a href="https://github.com/metajinomics/dev/blob/master/blast_tools/both_hit.py">both_hit.py</a></li>
+<li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/fetch_genbank.py">fetch_genbank.py</a></li>
+<li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/genbank_to_tax.py">genbank_to_tax.py</a></li>
+</ul>
+<p>Scripts that aren’t in use anymore, but were useful in the past.</p>
+<ul>
+<li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/get_taxonomy_all.py">get_taxonomy.py</a></li>
+<li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/taxonomy_finder.py">taxonomy_finder</a></li>
+</ul>
+<pre><code>#Setting up Scripts example
+nano
+#copy and paste script
+#Save and enter name (enter name of the script exactly as listed order to follow tutorial)
+#crtl + o
+#exit
+#crtl + x
+
+#Need to change permissions (This is one way of many to do this)
+chmod 777 &lt;script_name&gt;</code></pre>
+<p><em>I did not write these scripts. They mostly came from Jin Choi, and the GERMS lab.</em></p>
 </div>
 <div id="fetching" class="section level2">
 <h2>Fetching</h2>
@@ -260,13 +300,14 @@ cat * &gt; allseqs</code></pre>
 </div>
 <div id="clustering" class="section level2">
 <h2>Clustering</h2>
-<p>Now we need to cluster the sequences using CD-HIT, to make analysis easier. [Here is a good guide]((<a href="http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf" class="uri">http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf</a>) on how to use it.</p>
+<p>Now we need to cluster the sequences using CD-HIT, to make analysis easier. <a href="http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf">Here is a good guide</a> on how to use it.</p>
 <pre><code>#Run CD-HIT
 cd-hit -i allseqs -o db99 -c 0.99 -n 5</code></pre>
 <p>where allseqs is the filename of input, db99 is output, 0.99, means 99% identity, is the clustering threshold 5 is the size of word</p>
 <p>Choose of word size: -n 5 for thresholds 0.7 ~ 1.0 -n 4 for thresholds 0.6 ~ 0.7 -n 3 for thresholds 0.5 ~ 0.6 -n 2 for thresholds 0.4 ~ 0.5</p>
 <p><em>Question: Why cluster at 99%?</em> <em>Answer: It makes justification of later analysis easier. I will explain better later, but a good exercise is to graph the number of clusters at different cutoff thresholds. The graph will tell you a lot about the variation within the gene, and maybe that 99% threshold isn’t good.</em></p>
 <p>For later analysis, we need a spreadsheet numbering the cluters. Open up db99 in excel and using delimiters isolate the accession number. Number them from 1 to 91. Save this as clusters.csv.</p>
+<p>You can also get the number of sequences in each cluster from the db99.clstr file.</p>
 </div>
 <div id="alignment" class="section level2">
 <h2>Alignment</h2>
@@ -276,12 +317,42 @@ cd-hit -i allseqs -o db99 -c 0.99 -n 5</code></pre>
 <div id="phylogenetic-tree" class="section level2">
 <h2>Phylogenetic tree</h2>
 <p>We use FastTree to make a tree file.</p>
-<pre><code>FastTree -gtr -nt &lt; alignment.file &gt; tree_file</code></pre>
+<pre><code>FastTree -gtr -nt alignment_file tree_file</code></pre>
 <p>Take your tree_file and put it onto your computer. We will visualize and annotate it in R.</p>
+<pre class="r"><code>#back in R
+
+#You can download ggtree and treeio using
+#source(&quot;http://bioconductor.org/biocLite.R&quot;)
+#biocLite()
+#biocLite(ggtree)
+#biocLite(treeio)
+
+
+library(tidyverse)
+library(ggplot2)
+library(ggtree)
+library(treeio)
+
+#import tree file from FastTree
+tree &lt;- read.tree(&quot;~/desktop/fungene\ str/tree_file&quot;)
+
+#import meta data. I had Accession number (which I had labeled &quot;ID&quot;), cluster number, and number of sequences in each cluster at this point
+meta &lt;- read.csv(&quot;~/desktop/fungene\ str/strtreedata.csv&quot;)
+meta &lt;- meta[c(&quot;ID&quot;,&quot;Cluster&quot;,&quot;Number&quot;)]
+
+#tree
+p1 &lt;- ggtree(tree)
+p1</code></pre>
+<p><img src="str_tutorial_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<pre class="r"><code>p1 %&lt;+% meta +
+  geom_tiplab(aes(label=Cluster), size=2, offset = 0.02, align=TRUE) +
+  geom_point(aes(size=Number))</code></pre>
+<p><img src="str_tutorial_files/figure-html/unnamed-chunk-1-2.png" width="672" /> <em>Note: At this point I noticed one of my clusters wasn’t labeled. It turned out two of my clusters shared a gene accession number. I couldn’t find a better way to deal with this other than changing the accessions of one of the clusters manually and keeping note of this. You might have to manually change it in the alignment file too. Throughout this analysis, I needed to switch from my manual accession number to the actual accession. Just be sure to be careful or work on a better solution.</em></p>
+<p>Awesome! Now we have a gene phylogeny. Let’s add primer coverage to it.</p>
 </div>
 <div id="primer-search" class="section level2">
 <h2>Primer search</h2>
-<p>So you have gathered published primer sequences and want to know how well they can amplify this gene. Put them into fasta format.</p>
+<p>So you have gathered published primer sequences and want to know how well they can amplify this gene. Put the primers into fasta format.</p>
 <pre><code>#example primer fasta
 &gt;F1
 agtcctcgaaggccttttaa
@@ -289,19 +360,107 @@ agtcctcgaaggccttttaa
 aggggtccatacgcgcaagt</code></pre>
 <p>For our purposes, we will consider a primer to amplify a cluster if both forward and reverse primers were required to share 100% nucleotide similarity over a minimum of 17 bp of the primer length.</p>
 <p><em>Question: Why 100% similarity? Can’t primers work if they are off by only one nucleotide or even sometimes more?</em> <em>Answer: Yes. However, it is hard to predict how primers behave. We are being very conservative in our estimates. Given that our clusters already have small variation within in them, allowing one nucleotide difference in the primer makes finding matches even more complicated.</em></p>
-<p>Luckily, Jin has a script that does this.</p>
-<pre><code>python jinscript.py input output</code></pre>
-<p>Now we have what clusters are hit by which primer. Using clusters.csv and r, we can merge documents to also gain the cluster number. Make an excel sheet with each primer, the cluster numbers they hit, and the cluster accessions.</p>
+<p>Luckily, we can make blast do this for us. But first, we need to make our database into NCBI format.</p>
+<pre><code>#makeblastdb -in &lt;nifh-db&gt; -dbtype nucl -out &lt;nifh-db&gt;
+
+makeblastdb -in db99 -dbtype nucl -out db99-NCBI.fa</code></pre>
+<p>Now use our primers as the blast query against our database. Note that the database input is db99-NCBI.fa even though we made three files when making the database.</p>
+<pre><code>blastn -db db99-NCBI.fa -query mock.primer.txt -out mock_primerXrefseq_genomic.out -evalue 1e-5 -outfmt 6 -task blastn-short</code></pre>
+<p>Now we have what clusters are hit by which primer. Using clusters.csv and r, we can merge documents to also gain the cluster number. Make an excel sheet with each primer, the target gene to be amplified, the cluster numbers they hit, and the cluster accessions.</p>
 <p>Go back to R and plot the tree (see Phylogenetic tree section). We can add the new meta data to the figure like this.</p>
-<pre><code>Annotated tree plot</code></pre>
+<pre class="r"><code>tree &lt;- read.tree(&quot;~/desktop/fungene\ str/tree_file&quot;)
+meta &lt;- read.csv(&quot;~/desktop/fungene\ str/strtreedata.csv&quot;)
+
+
+
+#primereval is my primer meta data, &quot;ID&quot; is accession number
+primereval &lt;- read.csv(&quot;~/desktop/fungene\ str/Copy\ of\ strprimereval.csv&quot;)
+primerevalclusters &lt;- merge(primereval,meta,by=&quot;ID&quot;)
+reduced &lt;- primerevalclusters[c(&quot;Primer.x&quot;, &quot;Cluster.&quot;)]
+write.csv(reduced, file = &quot;primerclusters.csv&quot;)
+
+#tree
+p1 &lt;- ggtree(tree)</code></pre>
+<pre><code>## Found more than one class &quot;phylo&quot; in cache; using the first, from namespace &#39;phyloseq&#39;</code></pre>
+<pre><code>## Also defined by &#39;tidytree&#39;</code></pre>
+<pre class="r"><code>treemeta&lt;- meta[c(&quot;ID&quot;,&quot;Cluster&quot;, &quot;Primer&quot;, &quot;Number&quot;)]
+
+
+p1 %&lt;+% treemeta+
+  geom_tiplab(aes(label=Cluster, color=Primer), size=2, offset = 0.02, align=TRUE) +
+  geom_point(aes(size=Number, color=Primer))+
+  scale_colour_manual(labels = c(&quot;None&quot;,&quot;strA&quot;,&quot;strB&quot;,&quot;&quot;), values = c(&quot;black&quot;,&quot;darkgreen&quot;,&quot;blue&quot;))+
+  geom_cladelabel(node=120, label=&quot;strB&quot;, align=TRUE, color=&quot;blue&quot;, offset = 0.12, barsize = 0) +
+  geom_cladelabel(node=152, label=&quot;strA&quot;, align=TRUE, color = &quot;darkgreen&quot;, offset = 0.12, barsize=0)+
+  theme(legend.position = &quot;right&quot;)</code></pre>
+<p><img src="str_tutorial_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>  ggsave(filename = &quot;strtree.pdf&quot;)</code></pre>
+<pre><code>## Saving 7 x 5 in image</code></pre>
+<pre class="r"><code>#see node for choosing clade label.
+ggtree(tree) + geom_text2(aes(subset=!isTip, label=node), hjust=-.2)+geom_tiplab()</code></pre>
+<pre><code>## Found more than one class &quot;phylo&quot; in cache; using the first, from namespace &#39;phyloseq&#39;
+## Also defined by &#39;tidytree&#39;</code></pre>
+<p><img src="str_tutorial_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+<pre class="r"><code>#If your primer doesn&#39;t amplify closely related clades, then you can&#39;t use clade labels. You can always write in labels in illustrator.</code></pre>
 </div>
 <div id="taxonomy" class="section level2">
 <h2>Taxonomy</h2>
-<p>We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy.</p>
-<p>Analysis</p>
+<p>We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy, but it uses the genbank file. You will need to make a list of accessions in a file. You can do this using delimiters in excel using your raw sequences from fungene database. Or you can use grep and search for “&gt;” and print that to a file.</p>
+<pre><code>#fetch_genbank
+python fetch_genome.py &lt;genome_id_list&gt; &lt;out_dir&gt;&quot;
+
+#get taxonomy
+python genbank_to_tax.py &lt;genbankfile.gbk&gt; &gt; output.fna
+</code></pre>
+<p><em>When I first did this, I used grep to search for the ORGANISM in the genbank. This script works much better and fills in gaps in the genbank</em></p>
+<p>Now you have taxonomic info you can analyze in R!</p>
+<pre class="r"><code>library(dplyr)
+library(arsenal)
+
+#import and merge relevant data (I had to clean mine a little). We want accession and taxonomy.
+tax &lt;- read.csv(&quot;~/desktop/fungene\ str/allstrtax.csv&quot;, row.names = NULL)
+all &lt;- read.csv(&quot;~/desktop/fungene\ str/all.csv&quot;, row.names = NULL)
+merged &lt;- merge(all, tax, by=&quot;Accession.number&quot;)
+sub &lt;- merged[c(&quot;Accession.number&quot;, &quot;phylum&quot;, &quot;class&quot;, &quot;order&quot;)]
+
+#find relative abundance of phyla
+#These aggregate by a taxonomic unit and then get percentage
+#pick which one you want
+
+#phylaaggregate &lt;- count(sub, phylum) 
+#phylaaggregate$pct &lt;- phylaaggregate$n / sum(phylaaggregate$n)
+#phylaaggregate
+
+#classaggregate &lt;- count(sub, class)
+#classaggregate$pct &lt;- classaggregate$n / sum(classaggregate$n)
+#classaggregate
+
+#orderaggregate &lt;- count(sub, order)
+#orderaggregate$pct &lt;- classaggregate$n / sum(classaggregate$n)
+#orderaggregate</code></pre>
 </div>
 <div id="metagenomic-annotation-and-analysis" class="section level2">
 <h2>Metagenomic Annotation and Analysis</h2>
+<p>This is the fun part. Most of this comes from the <a href="http://blast-tutorial.readthedocs.io/en/latest/ncbi/index.html">NCBI EDAMAME tutorial</a>.</p>
+<p>So you have your metagenomes. Lets search them using our database we made. This step will take a long time (a day or so depending on how many metagenomes you have and the size of your database). Use tmux.</p>
+<pre><code>#base search is
+#blastn -query &lt;metag file&gt; -db &lt;db file&gt; -out &lt;name of output&gt; -outfmt 6
+
+#but we want to search every metagenome
+for x in metags/*fa; do blastn -query $x -db db99 -out $x-blast-output.txt -outfmt 6; done</code></pre>
+<p>The blast results can be redundant. Multiple genes can match with the same sequence, so lets only use the et matches.</p>
+<pre><code>#base command
+#python best_hit.py input &gt; output
+
+for x in metags/*blast-output.txt; do python best_hit.py $x &gt; $x-besthit; done</code></pre>
+<p>Some count the genes from this step. However, to be extra safe, we are only going to count the hits that are in both paired ends of the metagenome.</p>
+<pre><code>#the inputs are each paired end of a metagenome
+python both_hit.py besthit.R1 besthit.R2 &gt; bothhit-output
+#you&#39;ll have to this manually for each pair... sorry!</code></pre>
+<p>Lets count the genes up!</p>
+<pre><code>python ../../scripts/count-up.py *bothhit-output</code></pre>
+<p>This should produce a ‘summary-count.tsv’ file that should have everything you need.</p>
+<p><strong>Ed needs to add the R visualization and analysis, but the rest should be relatively straight forward.</strong></p>
 </div>
 </div>
 
