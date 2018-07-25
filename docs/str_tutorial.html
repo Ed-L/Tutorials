@@ -268,7 +268,12 @@ apt install FastTree</code></pre>
 </li>
 <li><a href="https://github.com/metajinomics/dev/blob/master/blast_tools/both_hit.py">both_hit.py</a></li>
 <li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/fetch_genbank.py">fetch_genbank.py</a></li>
+<li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/genbank_to_tax.py">genbank_to_tax.py</a></li>
+</ul>
+<p>Scripts that aren’t in use anymore, but were useful in the past.</p>
+<ul>
 <li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/get_taxonomy_all.py">get_taxonomy.py</a></li>
+<li><a href="https://github.com/metajinomics/ncbi_tools/blob/master/taxonomy_finder.py">taxonomy_finder</a></li>
 </ul>
 <pre><code>#Setting up Scripts example
 nano
@@ -323,27 +328,10 @@ cd-hit -i allseqs -o db99 -c 0.99 -n 5</code></pre>
 #biocLite(treeio)
 
 
-library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ──────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
-<pre><code>## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
-## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
-## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
-## ✔ readr   1.1.1     ✔ forcats 0.3.0</code></pre>
-<pre><code>## ── Conflicts ─────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>library(ggplot2)
-library(ggtree)</code></pre>
-<pre><code>## ggtree v1.12.6  For help: https://guangchuangyu.github.io/software/ggtree
-## 
-## If you use ggtree in published research, please cite:
-## Guangchuang Yu, David Smith, Huachen Zhu, Yi Guan, Tommy Tsan-Yuk Lam. ggtree: an R package for visualization and annotation of phylogenetic trees with their covariates and other associated data. Methods in Ecology and Evolution 2017, 8(1):28-36, doi:10.1111/2041-210X.12628</code></pre>
-<pre><code>## 
-## Attaching package: &#39;ggtree&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:tidyr&#39;:
-## 
-##     expand</code></pre>
-<pre class="r"><code>library(treeio)
+library(tidyverse)
+library(ggplot2)
+library(ggtree)
+library(treeio)
 
 #import tree file from FastTree
 tree &lt;- read.tree(&quot;~/desktop/fungene\ str/tree_file&quot;)
@@ -415,11 +403,78 @@ ggtree(tree) + geom_text2(aes(subset=!isTip, label=node), hjust=-.2)+geom_tiplab
 </div>
 <div id="taxonomy" class="section level2">
 <h2>Taxonomy</h2>
-<p>We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy.</p>
-<p>Analysis</p>
+<p>We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy, but it uses the genbank file. You will need to make a list of accessions in a file. You can do this using delimiters in excel using your raw sequences from fungene database. Or you can use grep and search for “&gt;” and print that to a file.</p>
+<pre><code>#fetch_genbank
+python fetch_genome.py &lt;genome_id_list&gt; &lt;out_dir&gt;&quot;
+
+#get taxonomy
+python genbank_to_tax.py &lt;genbankfile.gbk&gt; &gt; output.fna
+</code></pre>
+<p><em>When I first did this, I used grep to search for the ORGANISM in the genbank. This script works much better and fills in gaps in the genbank</em></p>
+<p>Now you have taxonomic info you can analyze in R!</p>
+<pre class="r"><code>library(dplyr)
+library(arsenal)
+
+#import and merge relevant data (I had to clean mine a little). We want accession and taxonomy.
+tax &lt;- read.csv(&quot;~/desktop/fungene\ str/allstrtax.csv&quot;, row.names = NULL)
+all &lt;- read.csv(&quot;~/desktop/fungene\ str/all.csv&quot;, row.names = NULL)
+merged &lt;- merge(all, tax, by=&quot;Accession.number&quot;)
+sub &lt;- merged[c(&quot;Accession.number&quot;, &quot;phylum&quot;, &quot;class&quot;, &quot;order&quot;)]
+
+#find relative abundance of phyla
+#These aggregate by a taxonomic unit and then get percentage
+phylaaggregate &lt;- count(sub, phylum)
+phylaaggregate$pct &lt;- phylaaggregate$n / sum(phylaaggregate$n)
+phylaaggregate</code></pre>
+<pre><code>## # A tibble: 4 x 3
+##   phylum              n      pct
+##   &lt;fct&gt;           &lt;int&gt;    &lt;dbl&gt;
+## 1 Actinobacteria;    54 0.00553 
+## 2 Bacteroidetes;      2 0.000205
+## 3 environmental      61 0.00624 
+## 4 Proteobacteria;  9654 0.988</code></pre>
+<pre class="r"><code>classaggregate &lt;- count(sub, class)
+classaggregate$pct &lt;- classaggregate$n / sum(classaggregate$n)
+classaggregate</code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    class                    n      pct
+##    &lt;fct&gt;                &lt;int&gt;    &lt;dbl&gt;
+##  1 Alphaproteobacteria;   140 0.0143  
+##  2 Bacteroidia;             2 0.000205
+##  3 Betaproteobacteria;     38 0.00389 
+##  4 Corynebacteriales;      38 0.00389 
+##  5 Gammaproteobacteria;  9476 0.970   
+##  6 Glycomycetales;          1 0.000102
+##  7 Micrococcales;           1 0.000102
+##  8 Propionibacteriales;     2 0.000205
+##  9 samples.                61 0.00624 
+## 10 Streptomycetales;       12 0.00123</code></pre>
+<pre class="r"><code>#orderaggregate &lt;- count(sub, order)
+#orderaggregate$pct &lt;- classaggregate$n / sum(classaggregate$n)
+#orderaggregate</code></pre>
 </div>
 <div id="metagenomic-annotation-and-analysis" class="section level2">
 <h2>Metagenomic Annotation and Analysis</h2>
+<p>This is the fun part. Most of this comes from the <a href="http://blast-tutorial.readthedocs.io/en/latest/ncbi/index.html">NCBI EDAMAME tutorial</a>.</p>
+<p>So you have your metagenomes. Lets search them using our database we made. This step will take a long time (a day or so depending on how many metagenomes you have and the size of your database). Use tmux.</p>
+<pre><code>#base search is
+#blastn -query &lt;metag file&gt; -db &lt;db file&gt; -out &lt;name of output&gt; -outfmt 6
+
+#but we want to search every metagenome
+for x in metags/*fa; do blastn -query $x -db db99 -out $x-blast-output.txt -outfmt 6; done</code></pre>
+<p>The blast results can be redundant. Multiple genes can match with the same sequence, so lets only use the et matches.</p>
+<pre><code>#base command
+#python best_hit.py input &gt; output
+
+for x in metags/*blast-output.txt; do python best_hit.py $x &gt; $x-besthit; done</code></pre>
+<p>Some count the genes from this step. However, to be extra safe, we are only going to count the hits that are in both paired ends of the metagenome.</p>
+<pre><code>#the inputs are each paired end of a metagenome
+python both_hit.py besthit.R1 besthit.R2 &gt; bothhit-output
+#you&#39;ll have to this manually for each pair... sorry!</code></pre>
+<p>Lets count the genes up!</p>
+<pre><code>python ../../scripts/count-up.py *bothhit-output</code></pre>
+<p>This should produce a ‘summary-count.tsv’ file that should have everything you need.</p>
+<p><strong>Ed needs to add the R visualization and analysis, but the rest should be relatively straight forward.</strong></p>
 </div>
 </div>
 

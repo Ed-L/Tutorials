@@ -54,7 +54,13 @@ Scripts you will need:
 * [count-up.py](https://github.com/Ed-L/Metagenome_tools/blob/master/count-up.py)      
 * [both_hit.py](https://github.com/metajinomics/dev/blob/master/blast_tools/both_hit.py)
 * [fetch_genbank.py](https://github.com/metajinomics/ncbi_tools/blob/master/fetch_genbank.py)
+* [genbank_to_tax.py](https://github.com/metajinomics/ncbi_tools/blob/master/genbank_to_tax.py)
+
+Scripts that aren't in use anymore, but were useful in the past.
+
 * [get_taxonomy.py](https://github.com/metajinomics/ncbi_tools/blob/master/get_taxonomy_all.py)
+* [taxonomy_finder](https://github.com/metajinomics/ncbi_tools/blob/master/taxonomy_finder.py)
+
 
 ```
 #Setting up Scripts example
@@ -125,7 +131,7 @@ FastTree -gtr -nt alignment_file tree_file
 ```
 Take your tree_file and put it onto your computer. We will visualize and annotate it in R.
 
-```{r, echo=TRUE, warning=FALSE}
+```{r, echo=TRUE, warning=FALSE,  message=FALSE}
 #back in R
 
 #You can download ggtree and treeio using
@@ -222,8 +228,78 @@ ggtree(tree) + geom_text2(aes(subset=!isTip, label=node), hjust=-.2)+geom_tiplab
 #If your primer doesn't amplify closely related clades, then you can't use clade labels. You can always write in labels in illustrator.
 ```
 ## Taxonomy
-We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy.
+We want to examine the host taxonomy of the gene variants. Unlike before, I want the taxonomy of all the sequences - not just the clusters. Luckily, there is a script to fetch taxonomy, but it uses the genbank file. You will need to make a list of accessions in a file. You can do this using delimiters in excel using your raw sequences from fungene database. Or you can use grep and search for ">" and print that to a file.
 
-Analysis
+```
+#fetch_genbank
+python fetch_genome.py <genome_id_list> <out_dir>"
+
+#get taxonomy
+python genbank_to_tax.py <genbankfile.gbk> > output.fna
+
+```
+*When I first did this, I used grep to search for the ORGANISM in the genbank. This script works much better and fills in gaps in the genbank*
+
+Now you have taxonomic info you can analyze in R!
+
+```{r, echo=TRUE, warning=FALSE}
+library(dplyr)
+library(arsenal)
+
+#import and merge relevant data (I had to clean mine a little). We want accession and taxonomy.
+tax <- read.csv("~/desktop/fungene\ str/allstrtax.csv", row.names = NULL)
+all <- read.csv("~/desktop/fungene\ str/all.csv", row.names = NULL)
+merged <- merge(all, tax, by="Accession.number")
+sub <- merged[c("Accession.number", "phylum", "class", "order")]
+
+#find relative abundance of phyla
+#These aggregate by a taxonomic unit and then get percentage
+phylaaggregate <- count(sub, phylum)
+phylaaggregate$pct <- phylaaggregate$n / sum(phylaaggregate$n)
+phylaaggregate
+
+classaggregate <- count(sub, class)
+classaggregate$pct <- classaggregate$n / sum(classaggregate$n)
+classaggregate
+
+#orderaggregate <- count(sub, order)
+#orderaggregate$pct <- classaggregate$n / sum(classaggregate$n)
+#orderaggregate
+```
 
 ## Metagenomic Annotation and Analysis
+
+This is the fun part. Most of this comes from the [NCBI EDAMAME tutorial](http://blast-tutorial.readthedocs.io/en/latest/ncbi/index.html).
+
+So you have your metagenomes. Lets search them using our database we made. This step will take a long time (a day or so depending on how many metagenomes you have and the size of your database). Use tmux.
+```
+#base search is
+#blastn -query <metag file> -db <db file> -out <name of output> -outfmt 6
+
+#but we want to search every metagenome
+for x in metags/*fa; do blastn -query $x -db db99 -out $x-blast-output.txt -outfmt 6; done
+```
+The blast results can be redundant. Multiple genes can match with the same sequence, so lets only use the et matches.
+
+```
+#base command
+#python best_hit.py input > output
+
+for x in metags/*blast-output.txt; do python best_hit.py $x > $x-besthit; done
+```
+Some count the genes from this step. However, to be extra safe, we are only going to count the hits that are in both paired ends of the metagenome.
+
+```
+#the inputs are each paired end of a metagenome
+python both_hit.py besthit.R1 besthit.R2 > bothhit-output
+#you'll have to this manually for each pair... sorry!
+```
+
+Lets count the genes up!
+```
+python ../../scripts/count-up.py *bothhit-output
+```
+
+This should produce a 'summary-count.tsv' file that should have everything you need.
+
+**Ed needs to add the R visualization and analysis, but the rest should be relatively straight forward.**
