@@ -15,6 +15,12 @@ EDAMAME was a workshop I went to. The link above is to the schedule, which has t
 ## [Phyloseq](https://joey711.github.io/phyloseq/)
 Phyloseq is the R library you will probably use to analyze and visualize your 16S community data. Look for the tutorials tab on the website.
 
+## [Phyloseq Tutorial using MOTHUR output](http://deneflab.github.io/MicrobeMiseq/demos/mothur_2_phyloseq.html)
+
+## [Beginner's guide to DEseq2](https://bioc.ism.ac.jp/packages/2.14/bioc/vignettes/DESeq2/inst/doc/beginner.pdf)
+
+## [Phyloseq to DEseq2](http://joey711.github.io/phyloseq-extensions/DESeq2.html)
+
 ## [Numerical ecology with R](http://www.ievbras.ru/ecostat/Kiril/R/Biblio/R_eng/Numerical%20Ecology%20with%20R%20(use%20R).pdf)
 The people who taught me statistics in R swear by this book. There is also just a plain Numerical ecology version (no R code).
 
@@ -32,7 +38,5 @@ Has workflows that may be of use.
 ## [Setting up Github and connecting to Rstudio](https://resources.github.com/articles/github-and-rstudio/)
 
 ## Understanding Git resources [1](https://www.sbf5.com/~cduan/technical/git/), [2](http://gitolite.com/gcs.html#), [3](http://eagain.net/articles/git-for-computer-scientists/)
-
-## [Beginner's guide to DEseq2](https://bioc.ism.ac.jp/packages/2.14/bioc/vignettes/DESeq2/inst/doc/beginner.pdf)
 
 ## [Guide to CD-HIT](http://www.bioinformatics.org/cd-hit/cd-hit-user-guide.pdf)

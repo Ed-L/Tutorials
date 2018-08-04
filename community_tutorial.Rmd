@@ -32,12 +32,12 @@ Head into the ~/data/references directory and make sure your references are up t
 #You can upload the references directly to the server using the command wget. This saves your own computer lots of space. Make sure to update the reference links in the commands.
 
 #https://mothur.org/wiki/Silva_reference_files
-wget -P data/references https://mothur.org/w/images/a/a4/Silva.seed_v128.tgz
+wget data/references https://mothur.org/w/images/a/a4/Silva.seed_v128.tgz
 tar xvzf data/references/Silva.seed_v128.tgz -C data/references
 rm data/references/Silva.seed_v128.tgz data/references/README.*
 
 #https://mothur.org/wiki/RDP_reference_files
-wget -P data/references https://mothur.org/w/images/c/c3/Trainset16_022016.pds.tgz
+wget data/references https://mothur.org/w/images/c/c3/Trainset16_022016.pds.tgz
 tar xvzf data/references/Trainset16_022016.pds.tgz -C data/references
 rm data/references/Trainset16_022016.pds.tgz
 mv data/references/trainset16_022016.pds/* data/references
@@ -55,14 +55,16 @@ For this tutorial, you will only need to follow the tutorial through to the "Ana
 However, I will give you some helpful hints, and solutions to problems I encountered.
 
 * File names can be what ever you want them to be. They don't need to end in ".stability". Make sure they make sense to you and are easy to keep track of. Ideally, they also would make sense to other people, too.
+* Mothur can run .gz files - you don't have to unzip to fastq. (Change type=gz)
+* Index files should not be run in mothur. They are the "I" instead of "R" in the file name.
 * Warnings are just warnings. Be aware of them, but it's probably ok to continue on. Errors will not let you continue.
 * Don't just blindly follow the tutorial. Understand what each step does and pay attention. Sometimes, the defaults won't work or throw away too many sequences!
-* I recommend doing the analysis in one session (might require skill with [tmux](https://github.com/edamame-course/2015-tutorials/blob/master/final/2015-06-22_tmux.md)), but you can do MOTHUR in multiple sessions. If you do multiple sessions, make sure you are calling the right directories (I used [set.dir](https://mothur.org/wiki/Set.dir) a lot).
+* I recommend doing the analysis in one session (might require skill with [tmux](https://github.com/edamame-course/2015-tutorials/blob/master/final/2015-06-22_tmux.md)), but you can do MOTHUR in multiple sessions. If you do multiple sessions, make sure you are calling the right directories (I used [set.dir](https://mothur.org/wiki/Set.dir) a lot). For about 150 sequences, it took about 5 hours to process. Most of it is running a command and waiting, so you can do other tasks while MOTHUR chugs along.
 
 If at some point MOTHUR is not behaving and you get stuck, be mindful of the following:
 
 * Try going back and redoing the commands from the previous section. MOTHUR requires steps be in exact order, and its possible you missed a prior command or did not work properly.
-* MOTHUR takes up a huge amount of space. It outputs lots of text files per a sequence, and each sequence is already taking up a large amount of memory. Try restarting on a larger instance with more memory. To analyze about 150 sequences, I had to use a m4.4xlarge and added on even more storage. **NOTE: THE LARGER THE INSTANCE THE MORE IT COSTS. (update 7/24/18) AMAZON ALSO JUST CHANGED THEIR POLICY. YOU NEED TO ASK PERMISSION TO USE LARGER INSTANCES. PLAN AHEAD, BECAUSE IT MAY TAKE TIME TO OBTAIN.**
+* MOTHUR takes up a huge amount of space. It outputs lots of text files per a sequence, and each sequence is already taking up a large amount of memory. Try restarting on a larger instance with more memory. To analyze about 150 sequences, I had to use a m4.4xlarge and added on even more storage (100GB). **NOTE: THE LARGER THE INSTANCE THE MORE IT COSTS. (update 7/24/18) AMAZON ALSO JUST CHANGED THEIR POLICY. YOU NEED TO ASK PERMISSION TO USE LARGER INSTANCES. PLAN AHEAD, BECAUSE IT MAY TAKE TIME TO OBTAIN.**
 * The [MOTHUR forums](https://www.mothur.org/forum/) can be helpful, but they are hard to search.
 * Use google as a last resort.
 * Email lopatto@grinnell.edu with the log file and description of the problem. I may be able to help you, but if I'm not, I have access to people who know more than me.
@@ -149,6 +151,12 @@ Here are some figures and statistical examples that can be tweaked to your prefe
 
 ## Stacked Bar Figures
 This will give you a stacked bar of taxonomy composition (in this case phyla) for each sample. I also facetted by type. If you want by Genus set fill="Rank3". (Or just rename the ranks like a sensible person unlike me)
+```{r, echo=TRUE, eval=FALSE}
+#To rename ranks
+colnames(tax_table(moth_merge)) <- c("Kingdom", "Phylum", "Class",
+  "Order", "Family", "Genus")
+```
+
 ```{r, echo=TRUE}
 #stacked bar by sample
 plot_bar(darte_ed_16s_filter_re_g, fill="Rank2", facet_grid= ".~Type") + scale_fill_hue()
